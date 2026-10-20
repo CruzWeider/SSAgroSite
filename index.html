@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SS Agro | Software de Gestão ERP para o Agronegócio</title>
+  <meta
+    name="description"
+    content="A SS Agro apresenta ERP modular intuitivo para o agronegócio com gestão integrada. Desenvolvemos, implantamos, treinamos e damos suporte ágil para seu negócio!"
+  />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+
+  <!-- Fontes Modernas (Plus Jakarta Sans & Outfit) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Folha de Estilos Principal -->
+  <link rel="stylesheet" href="styles.css?v=11" />
+</head>
+<body>
+  <!-- Barra de progresso de leitura no topo da página -->
+  <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+
+  <!-- Luzes decorativas de fundo com as cores oficiais (#5de0e6 e #004aad) -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-orb ambient-orb--cyan"></div>
+    <div class="ambient-orb ambient-orb--royal"></div>
+  </div>
+
+  <!-- ========================================================================
+       CABEÇALHO FIXO (HEADER) COM A LOGO OFICIAL DA SS AGRO
+       ======================================================================== -->
+  <header class="navbar" id="navbar">
+    <div class="container navbar__inner">
+      <a href="#inicio" class="navbar__logo" aria-label="SS Agro - Página Inicial">
+        <img src="assets/logo-ssagro.png" alt="Logo Oficial SS Agro - Software de Gestão" />
+      </a>
+
+      <nav aria-label="Menu Principal">
+        <ul class="navbar__links" id="navLinks">
+          <li><a href="#inicio" class="navbar__link active">Início</a></li>
+          <li><a href="#segmentos" class="navbar__link">Segmentos</a></li>
+          <li><a href="#solucoes" class="navbar__link">Soluções ERP</a></li>
+          <li><a href="#modulos" class="navbar__link">16 Módulos</a></li>
+          <li><a href="#sobre" class="navbar__link">Sobre Nós</a></li>
+          <li><a href="#blog" class="navbar__link">Blog SS Agro</a></li>
+          <li><a href="#contato" class="navbar__link">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div class="navbar__actions">
+        <a
+          href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn--primary btn--sm"
+        >
+          <span>Solicitar Demonstração</span>
+          <span class="btn__icon">→</span>
+        </a>
+        <button class="navbar__mobile-toggle" id="mobileToggle" aria-label="Abrir Menu" aria-expanded="false">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ======================================================================
+         1. BANNER DE VÍDEO EM TELA CHEIA NO INÍCIO DO SITE + CASCATA DE GRÃOS
+         ====================================================================== -->
+    <section class="hero hero--banner" id="inicio">
+      <!-- Camada de Vídeo de Fundo do Banner (Dois Players para Transição Perfeita) -->
+      <div class="hero-banner__media" id="heroBannerMedia">
+        <!-- Vídeo 1: Colheita em Grãos (Higgsfield IA) -->
+        <video
+          id="heroVideo1"
+          class="hero-banner__video active"
+          src="assets/higgsfield-colheita.mp4"
+          poster="assets/hero-poster.jpg"
+          autoplay
+          muted
+          playsinline
+          preload="auto"
+        ></video>
+        <!-- Vídeo 2: Vista Aérea da Safra (Original SS Agro) -->
+        <video
+          id="heroVideo2"
+          class="hero-banner__video"
+          src="assets/hero-video.mp4"
+          poster="assets/hero-poster.jpg"
+          muted
+          playsinline
+          preload="auto"
+        ></video>
+        <!-- Overlay com o Azul Marinho Oficial (#0f273c) para manter as cores da marca -->
+        <div class="hero-banner__overlay"></div>
+        <div class="hero-banner__vignette"></div>
+      </div>
+
+      <div class="container hero-banner__container">
+        <!-- Barra superior do Banner: Badge da Marca SS Agro -->
+        <div class="hero-banner__top-bar reveal">
+          <div class="hero__badge">
+            <span class="hero__badge-dot"></span>
+            <span>ERP Modular Intuitivo para o Agronegócio • Desde 2012</span>
+          </div>
+        </div>
+
+        <!-- Conteúdo Central do Banner -->
+        <div class="hero-banner__Grid">
+          <div class="hero__content reveal reveal--left">
+            <h1 class="hero__title hero__title--banner">
+              Muito mais que <br />
+              <span class="text-gradient">um software.</span>
+            </h1>
+
+            <p class="hero__subtitle hero__subtitle--banner">
+              Obtenha resultados superiores. Otimize a tomada de decisões com um software específico para o seu agronegócio. Desenvolvemos, implantamos, treinamos e damos suporte ágil para o seu negócio!
+            </p>
+
+            <div class="hero__cta-group">
+              <a
+                href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--primary"
+              >
+                <span>Falar com Especialista</span>
+                <span class="btn__icon">→</span>
+              </a>
+              <a href="#solucoes" class="btn btn--outline">
+                <span>Conhecer Soluções ERP</span>
+              </a>
+            </div>
+
+            <div class="hero__highlights">
+              <div class="hero__highlight-item">
+                <span class="hero__highlight-icon">✓</span>
+                <span>Implantação & Treinamento Completo</span>
+              </div>
+              <div class="hero__highlight-item">
+                <span class="hero__highlight-icon">✓</span>
+                <span>Suporte Técnico Ágil e Especializado</span>
+              </div>
+              <div class="hero__highlight-item">
+                <span class="hero__highlight-icon">✓</span>
+                <span>Gestão 100% Integrada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador Animado de Rolagem na Base do Banner -->
+        <a href="#segmentos" class="hero-scroll-indicator" aria-label="Rolar página para baixo">
+          <div class="hero-scroll-indicator__mouse">
+            <div class="hero-scroll-indicator__wheel"></div>
+          </div>
+          <span>Role para explorar as soluções SS Agro ↓</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         2. FAIXA DE NÚMEROS / CONFIANÇA (ANIMAÇÃO DE CONTAGEM NO SCROLL)
+         ====================================================================== -->
+    <div class="stats-strip">
+      <div class="container">
+        <div class="stats-strip__grid reveal reveal--scale">
+          <div class="stat-card">
+            <div class="stat-card__number" data-counter="2012" data-start="1990">2012</div>
+            <div class="stat-card__label">Ano de Fundação</div>
+            <div class="stat-card__sub">Mais de uma década de inovação</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__number" data-counter="16" data-suffix="+">16+</div>
+            <div class="stat-card__label">Módulos Integrados</div>
+            <div class="stat-card__sub">Do campo ao contábil e fiscal</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__number" data-counter="4" data-suffix=" Pilares">4 Pilares</div>
+            <div class="stat-card__label">Segmentos Atendidos</div>
+            <div class="stat-card__sub">Distribuição, Indústria, Grãos e Rural</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card__number" data-counter="100" data-suffix="%">100%</div>
+            <div class="stat-card__label">Foco no Agronegócio</div>
+            <div class="stat-card__sub">Desenvolvido para a realidade do setor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         3. SEÇÃO SEGMENTOS DE ATUAÇÃO ("COM A SS AGRO VOCÊ GARANTE")
+         ====================================================================== -->
+    <section class="section" id="segmentos">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Segmentos de Atuação</span>
+          <h2 class="section-title">
+            Integre eficiência e tecnologia em <span class="text-gradient">toda a cadeia do agro</span>
+          </h2>
+          <p class="section-subtitle">
+            Um sistema de software criado sob medida para atender às necessidades específicas de cada operação do agronegócio. Passe o mouse sobre cada segmento para explorar o que você garante com a SS Agro:
+          </p>
+        </div>
+
+        <div class="segments-grid">
+          <!-- Segmento 1: Distribuidora de Insumos Agrícolas -->
+          <article class="segment-card spotlight-card tilt-card reveal delay-1">
+            <div class="segment-card__media">
+              <img
+                src="assets/seg-distribuidora-insumos.jpg"
+                alt="Distribuidora de Insumos Agrícolas"
+                loading="lazy"
+              />
+              <div class="segment-card__media-overlay"></div>
+              <span class="segment-card__badge">Comercial & Distribuição</span>
+            </div>
+            <div class="segment-card__body">
+              <h3 class="segment-card__title">Distribuidora de Insumos Agrícolas</h3>
+              <p class="segment-card__desc">
+                Controle e gerenciamento total da sua Distribuição de Insumos com rastreabilidade, agilidade comercial e conformidade legal.
+              </p>
+              <div class="segment-card__guarantees-title">Com a SS Agro você garante:</div>
+              <ul class="segment-card__list">
+                <li><span class="segment-card__check">✓</span> Controle de Estoque</li>
+                <li><span class="segment-card__check">✓</span> Controle Financeiro</li>
+                <li><span class="segment-card__check">✓</span> Obrigações Agronômicas</li>
+                <li><span class="segment-card__check">✓</span> Controle Contábil e Fiscal</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Segmento 2: Indústria de Insumos Agrícolas -->
+          <article class="segment-card spotlight-card tilt-card reveal delay-2">
+            <div class="segment-card__media">
+              <img
+                src="assets/seg-industria-insumos.jpg"
+                alt="Indústria de Insumos Agrícolas"
+                loading="lazy"
+              />
+              <div class="segment-card__media-overlay"></div>
+              <span class="segment-card__badge">Produção Industrial</span>
+            </div>
+            <div class="segment-card__body">
+              <h3 class="segment-card__title">Indústria de Insumos Agrícolas</h3>
+              <p class="segment-card__desc">
+                Gerenciamento de toda a cadeia de produção de insumos agrícolas de forma eficaz, do insumo básico à expedição final.
+              </p>
+              <div class="segment-card__guarantees-title">Com a SS Agro você garante:</div>
+              <ul class="segment-card__list">
+                <li><span class="segment-card__check">✓</span> Gestão de Matéria-Prima</li>
+                <li><span class="segment-card__check">✓</span> Ordem de Produção</li>
+                <li><span class="segment-card__check">✓</span> Controle de Produto Acabado</li>
+                <li><span class="segment-card__check">✓</span> Qualidade e Custos Industriais</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Segmento 3: Armazenagem de Grãos -->
+          <article class="segment-card spotlight-card tilt-card reveal delay-1">
+            <div class="segment-card__media">
+              <img
+                src="assets/seg-armazenagem-graos.jpg"
+                alt="Armazenagem de Grãos"
+                loading="lazy"
+              />
+              <div class="segment-card__media-overlay"></div>
+              <span class="segment-card__badge">Silos & Armazéns</span>
+            </div>
+            <div class="segment-card__body">
+              <h3 class="segment-card__title">Armazenagem de Grãos</h3>
+              <p class="segment-card__desc">
+                Experimente nossa plataforma e aumente a eficiência da sua Armazenagem de Grãos com automação e segurança em cada safra.
+              </p>
+              <div class="segment-card__guarantees-title">Com a SS Agro você garante:</div>
+              <ul class="segment-card__list">
+                <li><span class="segment-card__check">✓</span> Pesagem de Grãos</li>
+                <li><span class="segment-card__check">✓</span> Controle de Romaneios</li>
+                <li><span class="segment-card__check">✓</span> Gestão de Contratos</li>
+                <li><span class="segment-card__check">✓</span> Controle de Saldos e Tarifas</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Segmento 4: Propriedade Rural -->
+          <article class="segment-card spotlight-card tilt-card reveal delay-2">
+            <div class="segment-card__media">
+              <img
+                src="assets/seg-propriedade-rural.jpg"
+                alt="Propriedade Rural"
+                loading="lazy"
+              />
+              <div class="segment-card__media-overlay"></div>
+              <span class="segment-card__badge">Gestão no Campo</span>
+            </div>
+            <div class="segment-card__body">
+              <h3 class="segment-card__title">Propriedade Rural</h3>
+              <p class="segment-card__desc">
+                Transforme a gestão da sua Propriedade Rural com a nossa solução, acompanhando a rentabilidade real de cada safra e talhão.
+              </p>
+              <div class="segment-card__guarantees-title">Com a SS Agro você garante:</div>
+              <ul class="segment-card__list">
+                <li><span class="segment-card__check">✓</span> Custos por Talhões</li>
+                <li><span class="segment-card__check">✓</span> Controle Financeiro Rural</li>
+                <li><span class="segment-card__check">✓</span> Máquinas Agrícolas</li>
+                <li><span class="segment-card__check">✓</span> Planejamento de Safra</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         4. SEÇÃO SOLUÇÕES ERP (ECOSSISTEMA DESKTOP, BI & MOBILE)
+         ====================================================================== -->
+    <section class="section section--alt" id="solucoes">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Confira Nossas Soluções</span>
+          <h2 class="section-title">
+            Chega de soluções que <span class="text-gradient">não atendem ao seu negócio!</span>
+          </h2>
+          <p class="section-subtitle">
+            A <strong>SS AGRO</strong> é a escolha certa para uma gestão eficiente e inteligente no agronegócio. Navegue pelas abas abaixo para conhecer nossas plataformas em operação:
+          </p>
+        </div>
+
+        <!-- Botões de Abas Interativas -->
+        <div class="solutions-tabs reveal">
+          <button class="solution-tab-btn active" data-tab="erp">
+            <span>💻</span>
+            <span>SS-Agro ERP Completo</span>
+          </button>
+          <button class="solution-tab-btn" data-tab="bi">
+            <span>📈</span>
+            <span>Dashboard & BI Financeiro</span>
+          </button>
+          <button class="solution-tab-btn" data-tab="mobile">
+            <span>📱</span>
+            <span>Força de Vendas Mobile</span>
+          </button>
+        </div>
+
+        <!-- Painel 1: SS-Agro ERP Desktop -->
+        <div class="solution-panel active" id="panel-erp">
+          <div class="solution-panel__info">
+            <span class="solution-panel__badge">Gestão Centralizada</span>
+            <h3 class="solution-panel__title">SS-Agro ERP: Controle Total de Estoque, Faturamento e Operações</h3>
+            <p class="solution-panel__desc">
+              Uma plataforma robusta, modular e intuitiva projetada especificamente para a rotina de distribuidoras, indústrias, armazéns e produtores rurais.
+            </p>
+            <ul class="solution-panel__features">
+              <li>
+                <span>✦</span>
+                <div><strong>Consulta de Estoque Inteligente:</strong> Visão imediata de estoque físico, pedidos não entregues, compra para recebimento futuro, venda consignada e demonstrações.</div>
+              </li>
+              <li>
+                <span>✦</span>
+                <div><strong>Módulos Conectados em Tempo Real:</strong> Do pedido de venda à emissão fiscal, receituário agronômico e contabilização automática.</div>
+              </li>
+              <li>
+                <span>✦</span>
+                <div><strong>Multi-Unidades e Filiais:</strong> Gerencie matriz e filiais com segurança e rastreabilidade por lote e depósito.</div>
+              </li>
+            </ul>
+            <a
+              href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20do%20SS-Agro%20ERP."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary"
+            >
+              <span>Solicitar Demonstração do ERP</span>
+              <span class="btn__icon">→</span>
+            </a>
+          </div>
+          <div class="solution-panel__showcase">
+            <div class="solution-panel__img-wrap">
+              <img
+                src="assets/screen-erp-estoque.png"
+                alt="Tela real do sistema SS-Agro ERP - Consulta de Estoque e Módulos"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel 2: Dashboard & BI Financeiro -->
+        <div class="solution-panel" id="panel-bi">
+          <div class="solution-panel__info">
+            <span class="solution-panel__badge">Inteligência de Negócio (BI)</span>
+            <h3 class="solution-panel__title">Dashboards Estratégicos para Tomada de Decisão Segura</h3>
+            <p class="solution-panel__desc">
+              Acompanhe a saúde financeira da sua empresa com gráficos visuais em tempo real, fluxo de caixa, contas em atraso e ranking de receitas e despesas por categoria.
+            </p>
+            <ul class="solution-panel__features">
+              <li>
+                <span>✦</span>
+                <div><strong>Indicadores Instantâneos:</strong> Total de Receitas, Total de Despesas, Saldo Consolidado e Total em Conta atualizados ao vivo.</div>
+              </li>
+              <li>
+                <span>✦</span>
+                <div><strong>Análise de Inadimplência e Prazos:</strong> Gráficos claros de contas a receber e a pagar por faixas de vencimento (0 a 30, 31 a 60, 61 a 90 e +90 dias).</div>
+              </li>
+              <li>
+                <span>✦</span>
+                <div><strong>Top 10 Categorias Financeiras:</strong> Identifique rapidamente onde estão suas maiores receitas e centros de custo.</div>
+              </li>
+            </ul>
+            <a
+              href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Gostaria%20de%20conhecer%20o%20Dashboard%20e%20BI%20da%20SS%20Agro."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary"
+            >
+              <span>Conhecer o Módulo de BI</span>
+              <span class="btn__icon">→</span>
+            </a>
+          </div>
+          <div class="solution-panel__showcase">
+            <div class="solution-panel__img-wrap">
+              <img
+                src="assets/screen-dashboard-financeiro.png"
+                alt="Tela real do Dashboard de Gestão Financeira SS Agro"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel 3: Força de Vendas Mobile -->
+        <div class="solution-panel" id="panel-mobile">
+          <div class="solution-panel__info">
+            <span class="solution-panel__badge">Mobilidade em Campo</span>
+            <h3 class="solution-panel__title">App Força de Vendas SS Agro: Seu Time Comercial Conectado no Campo</h3>
+            <p class="solution-panel__desc">
+              Agilidade para sua equipe comercial consultar clientes, emitir pedidos de venda e acompanhar metas diretamente pelo celular, com integração direta ao ERP.
+            </p>
+            <ul class="solution-panel__features">
+              <li>
+                <span>✦</span>
+                <div><strong>Acompanhamento de Performance:</strong> Filtros rápidos por Semana, Mês, Trimestre e Ano com visão de Total Vendido, Faturado e em Aberto.</div>
+              </li>
+              <li>
+                <span>✦</span>
+                <div><strong>Gestão de Parceiros e Pedidos:</strong> Acesso rápido ao cadastro de clientes/parceiros e geração de pedidos de venda em poucos toques.</div>
+              </li>
+              <li>
+                <span>✦</span>
+                <div><strong>Sincronização com a Matriz:</strong> Pedidos integrados diretamente com o estoque, financeiro e faturamento da empresa.</div>
+              </li>
+            </ul>
+            <a
+              href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20o%20For%C3%A7a%20de%20Vendas%20SS%20Agro."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary"
+            >
+              <span>Ver Demonstração Mobile</span>
+              <span class="btn__icon">→</span>
+            </a>
+          </div>
+          <div class="solution-panel__showcase">
+            <div class="solution-panel__img-wrap solution-panel__img-wrap--mobile">
+              <img
+                src="assets/screen-mobile-app.jpg"
+                alt="Aplicativo Força de Vendas SS Agro no Smartphone"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         5. SEÇÃO 16 ROTINAS E MÓDULOS EM DESTAQUE (COM FILTRO INTERATIVO)
+         ====================================================================== -->
+    <section class="section" id="modulos">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Rotinas em Destaque</span>
+          <h2 class="section-title">
+            Os <span class="text-gradient">16 Módulos Especializados</span> do SS-Agro ERP
+          </h2>
+          <p class="section-subtitle">
+            Todas as áreas da sua empresa integradas em um único sistema. Filtre por categoria ou passe o mouse sobre os cartões para explorar cada rotina:
+          </p>
+        </div>
+
+        <!-- Filtros de Categoria -->
+        <div class="modules-filter reveal">
+          <button class="filter-chip active" data-filter="all">Todos os Módulos (16)</button>
+          <button class="filter-chip" data-filter="comercial">Comercial, BI & B2B</button>
+          <button class="filter-chip" data-filter="agro">Operações, Agro & Indústria</button>
+          <button class="filter-chip" data-filter="financeiro">Financeiro, Fiscal & Contábil</button>
+        </div>
+
+        <!-- Grid com os 16 Módulos Oficiais da página /solucoeserp -->
+        <div class="modules-grid reveal">
+          <div class="module-card spotlight-card" data-category="comercial">
+            <div class="module-card__icon">📊</div>
+            <h3 class="module-card__title">Inteligência de Negócio (BI)</h3>
+            <p class="module-card__desc">Dashboards gerenciais e indicadores em tempo real para decisões rápidas e assertivas.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="agro">
+            <div class="module-card__icon">📦</div>
+            <h3 class="module-card__title">Gestão de Compras e Estoque</h3>
+            <p class="module-card__desc">Controle rigoroso de lotes, validades, múltiplos depósitos, cotações e entregas futuras.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="comercial">
+            <div class="module-card__icon">🤝</div>
+            <h3 class="module-card__title">Gestão Comercial</h3>
+            <p class="module-card__desc">Tabelas de preço, políticas de desconto, comissões, metas e força de vendas integrada.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="financeiro">
+            <div class="module-card__icon">💰</div>
+            <h3 class="module-card__title">Gestão Financeira</h3>
+            <p class="module-card__desc">Contas a pagar e receber, fluxo de caixa, conciliação bancária e análise de crédito.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="agro">
+            <div class="module-card__icon">🌱</div>
+            <h3 class="module-card__title">Receituário Agronômico</h3>
+            <p class="module-card__desc">Emissão ágil e 100% adequada às exigências legais e órgãos fiscalizadores de defensivos.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="financeiro">
+            <div class="module-card__icon">🧾</div>
+            <h3 class="module-card__title">Gestão Fiscal</h3>
+            <p class="module-card__desc">Emissão de NF-e, NFC-e, CT-e, MDF-e e apuração de obrigações fiscais do agronegócio.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="financeiro">
+            <div class="module-card__icon">⚖️</div>
+            <h3 class="module-card__title">Gestão Contábil</h3>
+            <p class="module-card__desc">Integração contábil completa, plano de contas, balancetes, DRE e SPED Contábil.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="comercial">
+            <div class="module-card__icon">🎯</div>
+            <h3 class="module-card__title">Planejamento Estratégico</h3>
+            <p class="module-card__desc">Projeções de safra, metas orçamentárias e acompanhamento de resultados corporativos.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="agro">
+            <div class="module-card__icon">⚙️</div>
+            <h3 class="module-card__title">Controle de Processos</h3>
+            <p class="module-card__desc">Padronização, auditoria e automação de fluxos operacionais internos da empresa.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="agro">
+            <div class="module-card__icon">🏭</div>
+            <h3 class="module-card__title">Gestão de Produção Industrial</h3>
+            <p class="module-card__desc">Fórmulas, ordens de produção, consumo de matéria-prima e apontamento de produto acabado.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="comercial">
+            <div class="module-card__icon">🔗</div>
+            <h3 class="module-card__title">Integração com Fornecedores (B2B)</h3>
+            <p class="module-card__desc">Conectividade direta na cadeia de suprimentos para agilizar compras e compartilhamento de dados.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="comercial">
+            <div class="module-card__icon">🌾</div>
+            <h3 class="module-card__title">Compra e Venda de Commodities</h3>
+            <p class="module-card__desc">Originação de grãos, operações de Barter, fixação de preços, romaneios e contratos.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="comercial">
+            <div class="module-card__icon">👥</div>
+            <h3 class="module-card__title">Gestão de Parceiros</h3>
+            <p class="module-card__desc">Cadastro completo de produtores, propriedades, limites de crédito e histórico comercial.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="agro">
+            <div class="module-card__icon">🚜</div>
+            <h3 class="module-card__title">Gestão de Propriedade Agrícola</h3>
+            <p class="module-card__desc">Controle de custos por talhão, aplicações na lavoura, maquinário e produtividade da safra.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="financeiro">
+            <div class="module-card__icon">🏢</div>
+            <h3 class="module-card__title">Gestão de Patrimônio</h3>
+            <p class="module-card__desc">Controle de ativo imobilizado, depreciação, manutenções e frota da organização.</p>
+          </div>
+
+          <div class="module-card spotlight-card" data-category="financeiro">
+            <div class="module-card__icon">🛡️</div>
+            <h3 class="module-card__title">Configurações e Segurança</h3>
+            <p class="module-card__desc">Perfis de acesso granulares, parâmetros por filial, logs de auditoria e alta disponibilidade.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         6. SEÇÃO SOBRE NÓS — CONHEÇA A TRAJETÓRIA DA SS AGRO
+         ====================================================================== -->
+    <section class="section section--alt" id="sobre">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Sobre Nós</span>
+          <h2 class="section-title">
+            Conheça a trajetória da <span class="text-gradient">SS AGRO</span>
+          </h2>
+          <p class="section-subtitle">
+            Descubra como tudo começou. Nossa história, construída com dedicação e inovação, transformou a gestão do agronegócio.
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <!-- Foto Oficial do Fundador -->
+          <div class="reveal reveal--left">
+            <div class="founder-card tilt-card">
+              <div class="founder-card__inner">
+                <img
+                  src="assets/fundador-adebaldo.jpg"
+                  alt="Sr. Adebaldo Correia da Cruz - Fundador da SS-Agro"
+                  loading="lazy"
+                />
+                <div class="founder-card__caption">
+                  <div class="founder-card__name">Adebaldo Correia da Cruz</div>
+                  <div class="founder-card__role">Fundador da SS-Agro Sistemas de Gestão</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Texto Institucional Oficial -->
+          <div class="about-content reveal reveal--right">
+            <h3 class="about-content__title">
+              Onde tecnologia e expertise caminham juntas para o sucesso do seu negócio
+            </h3>
+            <p class="about-content__text">
+              A <strong>SS-Agro Sistemas de Gestão</strong> nasceu do sonho do <strong>Sr. Adebaldo Correia da Cruz</strong>, cujo legado continua vivo em nossa missão de inovação no agronegócio. Com a visão de oferecer soluções modernas, práticas e eficientes, a empresa foi fundada em <strong>2012</strong>, reunindo profissionais experientes para criar um sistema de gestão completo e inovador.
+            </p>
+            <p class="about-content__text">
+              Em <strong>2014</strong>, lançamos o <strong>SS-Agro ERP</strong>, uma ferramenta intuitiva, de alto desempenho e totalmente adaptada às necessidades do setor agropecuário. Desde então, evoluímos constantemente para oferecer tecnologia de ponta, ajudando nossos clientes a otimizar processos, ganhar produtividade e tomar decisões estratégicas com mais segurança.
+            </p>
+            <p class="about-content__text">
+              Com unidades físicas em <strong>Rio Verde - GO</strong> e <strong>Goiânia - GO</strong>, contamos com uma equipe qualificada nas áreas de desenvolvimento, suporte técnico e implantação, sempre prontos para garantir a melhor experiência com o SS-Agro ERP. Atendemos clientes em diversos estados do Brasil e seguimos crescendo ano após ano!
+            </p>
+          </div>
+        </div>
+
+        <!-- Pilares Oficiais: Negócio, Missão, Visão e Valores -->
+        <div class="pillars-grid">
+          <div class="pillar-card spotlight-card reveal delay-1">
+            <div class="pillar-card__icon">💼</div>
+            <h4 class="pillar-card__title">Nosso Negócio</h4>
+            <p class="pillar-card__text">
+              A SSAgro atua no desenvolvimento, implementação, treinamento e suporte de softwares de gestão especializados para o Agronegócio, entregando soluções de alta qualidade que otimizam a gestão e a produtividade.
+            </p>
+          </div>
+
+          <div class="pillar-card spotlight-card reveal delay-2">
+            <div class="pillar-card__icon">🚀</div>
+            <h4 class="pillar-card__title">Nossa Missão</h4>
+            <p class="pillar-card__text">
+              Proporcionar aos gestores do Agronegócio ferramentas estratégicas que elevem a qualidade da gestão, permitindo uma tomada de decisões mais assertiva e eficiente, impulsionando o crescimento sustentável do setor.
+            </p>
+          </div>
+
+          <div class="pillar-card spotlight-card reveal delay-3">
+            <div class="pillar-card__icon">🌟</div>
+            <h4 class="pillar-card__title">Nossa Visão</h4>
+            <p class="pillar-card__text">
+              Ser reconhecida como a empresa líder em eficiência e inovação na entrega de soluções tecnológicas para a gestão do Agronegócio, consolidando nossa posição como referência nacional.
+            </p>
+          </div>
+
+          <div class="pillar-card spotlight-card reveal delay-4">
+            <div class="pillar-card__icon">💎</div>
+            <h4 class="pillar-card__title">Nossos Valores</h4>
+            <p class="pillar-card__text">
+              <strong>Altruísmo:</strong> Comprometidos com o bem comum e o sucesso de parceiros e clientes.<br />
+              <strong>Honestidade:</strong> Transparência em todas as relações.<br />
+              <strong>Inovação:</strong> Novas soluções constantes para o setor.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         7. SEÇÃO BLOG SS AGRO ("FIQUE POR DENTRO DO MUNDO AGRONEGÓCIO")
+         ====================================================================== -->
+    <section class="section" id="blog">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Blog SS Agro</span>
+          <h2 class="section-title">
+            Fique por dentro do <span class="text-gradient">Mundo Agronegócio</span>
+          </h2>
+          <p class="section-subtitle">
+            Conteúdos estratégicos, inteligência climática e novidades do mercado para apoiar o produtor e o distribuidor de insumos:
+          </p>
+        </div>
+
+        <div class="blog-pills reveal">
+          <div class="blog-pill"><span>✓</span> Análises de Mercado</div>
+          <div class="blog-pill"><span>✓</span> Clima e Plantio</div>
+          <div class="blog-pill"><span>✓</span> Inovações Tecnológicas</div>
+          <a href="admin.html" class="blog-pill" style="border-color: rgba(93, 224, 230, 0.45); background: rgba(93, 224, 230, 0.12); color: var(--ss-cyan); text-decoration: none;">
+            <span>📊</span> Painel Gerencial do Blog
+          </a>
+        </div>
+
+        <div class="blog-grid" id="blogGrid">
+          <!-- Artigo 1 -->
+          <a
+            href="artigo.html?slug=el-nino-agressivo-janela-plantio"
+            class="blog-card spotlight-card reveal delay-1"
+          >
+            <div class="blog-card__img">
+              <img src="assets/blog-1.jpg" alt="Clima e Janela de Plantio no Agronegócio" loading="lazy" />
+              <span class="blog-card__tag">Clima e Plantio</span>
+            </div>
+            <div class="blog-card__body">
+              <h3 class="blog-card__title">
+                El Niño Agressivo no Horizonte: Como a Distribuição de Insumos Deve Orientar a Janela de Plantio
+              </h3>
+              <div class="blog-card__more">
+                Ler artigo completo <span>→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Artigo 2 -->
+          <a
+            href="artigo.html?slug=nova-legislacao-fertilizantes-nacionais"
+            class="blog-card spotlight-card reveal delay-2"
+          >
+            <div class="blog-card__img">
+              <img src="assets/blog-2.jpg" alt="Legislação de Fertilizantes e Estoque" loading="lazy" />
+              <span class="blog-card__tag">Análises de Mercado</span>
+            </div>
+            <div class="blog-card__body">
+              <h3 class="blog-card__title">
+                Nova Legislação de Fertilizantes Nacionais: O Que Muda para o Estoque e as Margens dos Distribuidores
+              </h3>
+              <div class="blog-card__more">
+                Ler artigo completo <span>→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Artigo 3 -->
+          <a
+            href="artigo.html?slug=manejo-fisiologico-protecao-termica"
+            class="blog-card spotlight-card reveal delay-3"
+          >
+            <div class="blog-card__img">
+              <img src="assets/blog-3.jpg" alt="Manejo Fisiológico e Proteção Térmica" loading="lazy" />
+              <span class="blog-card__tag">Inovações Tecnológicas</span>
+            </div>
+            <div class="blog-card__body">
+              <h3 class="blog-card__title">
+                Manejo Fisiológico e Proteção Térmica: A Nova Fronteira para Proteger o Potencial Produtivo da Safra
+              </h3>
+              <div class="blog-card__more">
+                Ler artigo completo <span>→</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Artigo 4 -->
+          <a
+            href="artigo.html?slug=consumo-interno-milho-barter-safrinha"
+            class="blog-card spotlight-card reveal delay-4"
+          >
+            <div class="blog-card__img">
+              <img src="assets/blog-4.jpg" alt="Comercialização de Milho e Operações de Barter" loading="lazy" />
+              <span class="blog-card__tag">Mercado & Barter</span>
+            </div>
+            <div class="blog-card__body">
+              <h3 class="blog-card__title">
+                Consumo Interno de Milho Aquecido e Cautela na Comercialização: O Impacto nas Operações de Barter
+              </h3>
+              <div class="blog-card__more">
+                Ler artigo completo <span>→</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         8. SEÇÃO CONTATO & NOSSAS UNIDADES (RIO VERDE - GO & GOIÂNIA - GO)
+         ====================================================================== -->
+    <section class="section section--alt" id="contato">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">Fale Conosco</span>
+          <h2 class="section-title">
+            Pronto para transformar a <span class="text-gradient">gestão do seu agronegócio?</span>
+          </h2>
+          <p class="section-subtitle">
+            Entre em contato com nossa equipe comercial ou visite uma de nossas unidades em Goiás. Estamos prontos para atender você!
+          </p>
+        </div>
+
+        <div class="contact-grid">
+          <!-- Canais Diretos de Atendimento -->
+          <div class="contact-channels reveal reveal--left">
+            <div>
+              <h3 class="about-content__title" style="font-size: 1.65rem; margin-bottom: 8px;">
+                Canais de Atendimento
+              </h3>
+              <p style="color: var(--ss-gray-muted); font-size: 0.95rem;">
+                Clique em qualquer canal abaixo para falar diretamente com a nossa equipe:
+              </p>
+
+              <div class="contact-channels__list">
+                <a
+                  href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="contact-item"
+                >
+                  <div class="contact-item__icon">💬</div>
+                  <div>
+                    <span class="contact-item__label">WhatsApp Comercial</span>
+                    <span class="contact-item__value">(64) 9-8436-0638</span>
+                  </div>
+                </a>
+
+                <a href="tel:+556436234043" class="contact-item">
+                  <div class="contact-item__icon">📞</div>
+                  <div>
+                    <span class="contact-item__label">Telefone Fixo</span>
+                    <span class="contact-item__value">(64) 3623-4043</span>
+                  </div>
+                </a>
+
+                <a href="mailto:comercial@ssagro.com.br" class="contact-item">
+                  <div class="contact-item__icon">✉️</div>
+                  <div>
+                    <span class="contact-item__label">E-mail Comercial</span>
+                    <span class="contact-item__value">comercial@ssagro.com.br</span>
+                  </div>
+                </a>
+
+                <a
+                  href="https://www.instagram.com/ssagro_oficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="contact-item"
+                >
+                  <div class="contact-item__icon">📸</div>
+                  <div>
+                    <span class="contact-item__label">Instagram Oficial</span>
+                    <span class="contact-item__value">@ssagro_oficial</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <a
+              href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary"
+              style="width: 100%;"
+            >
+              <span>Iniciar Conversa no WhatsApp</span>
+              <span class="btn__icon">→</span>
+            </a>
+          </div>
+
+          <!-- Nossas Unidades Físicas -->
+          <div class="units-wrapper reveal reveal--right">
+            <div class="unit-card spotlight-card">
+              <div class="unit-card__header">
+                <div class="unit-card__pin">📍</div>
+                <h3 class="unit-card__city">Rio Verde - Goiás</h3>
+                <span class="unit-card__badge">Unidade Rio Verde</span>
+              </div>
+              <p class="unit-card__address">
+                <strong>Endereço:</strong> Rua 12, 631 - Sala 1 - Jardim Goiás<br />
+                <strong>CEP:</strong> 75.903-425 — Rio Verde - Goiás
+              </p>
+            </div>
+
+            <div class="unit-card spotlight-card">
+              <div class="unit-card__header">
+                <div class="unit-card__pin">📍</div>
+                <h3 class="unit-card__city">Goiânia - Goiás</h3>
+                <span class="unit-card__badge">Unidade Goiânia</span>
+              </div>
+              <p class="unit-card__address">
+                <strong>Endereço:</strong> Rua Marajó, 654 — Residencial Amazônia Park 3, Apartamento 1003<br />
+                <strong>Bairro:</strong> Parque Amazônia — <strong>CEP:</strong> 74.835-230 — Goiânia - Goiás
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       RODAPÉ (FOOTER OFICIAL)
+       ======================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <img src="assets/logo-ssagro.png" alt="Logo Oficial SS Agro" class="footer__logo" />
+          <p class="footer__desc">
+            A SS Agro apresenta ERP modular intuitivo para o agronegócio com gestão integrada. Desenvolvemos, implantamos, treinamos e damos suporte ágil para seu negócio!
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Menu Rápido</h4>
+          <ul class="footer__links">
+            <li><a href="#inicio">Início</a></li>
+            <li><a href="#sobre">Sobre Nós</a></li>
+            <li><a href="#segmentos">Segmentos de Atuação</a></li>
+            <li><a href="#solucoes">Soluções ERP</a></li>
+            <li><a href="#modulos">16 Módulos</a></li>
+            <li><a href="#blog">Blog SS Agro</a></li>
+            <li><a href="admin.html" style="color: var(--ss-cyan); font-weight: 700;">📊 Painel Gerencial do Blog</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Segmentos</h4>
+          <ul class="footer__links">
+            <li><a href="#segmentos">Distribuidora de Insumos</a></li>
+            <li><a href="#segmentos">Indústria de Insumos Agrícolas</a></li>
+            <li><a href="#segmentos">Armazenagem de Grãos</a></li>
+            <li><a href="#segmentos">Propriedade Rural</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Contato</h4>
+          <ul class="footer__links">
+            <li><a href="tel:+556436234043">(64) 3623-4043</a></li>
+            <li><a href="https://wa.me/5564984360638" target="_blank" rel="noopener noreferrer">(64) 9-8436-0638</a></li>
+            <li><a href="mailto:comercial@ssagro.com.br">comercial@ssagro.com.br</a></li>
+            <li><a href="https://www.instagram.com/ssagro_oficial" target="_blank" rel="noopener noreferrer">Instagram @ssagro_oficial</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <span>Copyright © 2021 - 2026 SS-Agro Sistemas de Gestão. Todos os direitos reservados.</span>
+        <span>Rio Verde - GO • Goiânia - GO</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Botão Flutuante de WhatsApp -->
+  <a
+    href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+    target="_blank"
+    rel="noopener noreferrer"
+    class="whatsapp-float"
+    aria-label="Falar pelo WhatsApp"
+  >
+    <span>💬 Falar com Especialista</span>
+  </a>
+
+  <!-- Dados e API do Blog + Script Principal -->
+  <script src="blog-data.js?v=9"></script>
+  <script src="script.js?v=9"></script>
+</body>
+</html>

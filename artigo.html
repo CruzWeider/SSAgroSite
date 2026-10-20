@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">Blog SS Agro | Inteligência e Gestão no Agronegócio</title>
+  <meta
+    name="description"
+    content="Acompanhe análises estratégicas, clima, legislação e tecnologia para o agronegócio no Blog Oficial da SS Agro."
+  />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+
+  <!-- Fontes Modernas (Plus Jakarta Sans & Outfit) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles.css?v=11" />
+  <style>
+    /* ========================================================================
+       ESTILOS ESPECÍFICOS DA TELA DE LEITURA DO ARTIGO (artigo.html)
+       Mantendo 100% as cores oficiais da SS Agro (#0f273c, #5de0e6, #004aad)
+       ======================================================================== */
+    .article-hero {
+      padding: 138px 0 48px;
+      position: relative;
+      background:
+        radial-gradient(circle at 80% 15%, rgba(93, 224, 230, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 15% 85%, rgba(0, 74, 173, 0.22) 0%, transparent 50%),
+        var(--ss-navy);
+      border-bottom: 1px solid rgba(93, 224, 230, 0.15);
+    }
+
+    .article-container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .article-breadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--ss-gray-muted);
+      margin-bottom: 24px;
+    }
+
+    .article-breadcrumb a {
+      color: var(--ss-cyan);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .article-breadcrumb a:hover {
+      opacity: 0.85;
+      text-decoration: underline;
+    }
+
+    .article-meta-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .article-category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--ss-gradient);
+      color: var(--ss-white);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 14px rgba(0, 74, 173, 0.45);
+    }
+
+    .article-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      color: var(--ss-gray-light);
+      background: rgba(21, 53, 82, 0.65);
+      border: 1px solid rgba(93, 224, 230, 0.22);
+      padding: 5px 13px;
+      border-radius: var(--radius-pill);
+    }
+
+    .article-meta-item strong {
+      color: var(--ss-cyan);
+    }
+
+    .article-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.8vw, 3.1rem);
+      font-weight: 800;
+      line-height: 1.16;
+      color: var(--ss-cream);
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .article-lead {
+      font-size: clamp(1.12rem, 1.45vw, 1.32rem);
+      line-height: 1.65;
+      color: var(--ss-white);
+      font-weight: 500;
+      padding: 18px 24px;
+      background: linear-gradient(90deg, rgba(93, 224, 230, 0.14) 0%, rgba(21, 53, 82, 0.35) 100%);
+      border-left: 4px solid var(--ss-cyan);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 36px;
+    }
+
+    .article-cover-wrapper {
+      position: relative;
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      background: var(--ss-gradient);
+      box-shadow: var(--shadow-lg), 0 0 45px rgba(93, 224, 230, 0.18);
+      margin-bottom: 44px;
+      overflow: hidden;
+    }
+
+    .article-cover-inner {
+      border-radius: calc(var(--radius-lg) - 3px);
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      background: var(--ss-navy-dark);
+    }
+
+    .article-cover-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.8s ease;
+    }
+
+    .article-cover-wrapper:hover .article-cover-inner img {
+      transform: scale(1.03);
+    }
+
+    /* Corpo de Leitura da Matéria */
+    .article-body-section {
+      padding: 20px 0 80px;
+    }
+
+    .article-content-card {
+      background: linear-gradient(160deg, rgba(21, 53, 82, 0.55) 0%, rgba(9, 25, 40, 0.82) 100%);
+      border: 1px solid rgba(93, 224, 230, 0.22);
+      border-radius: var(--radius-lg);
+      padding: clamp(28px, 5vw, 56px);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(14px);
+    }
+
+    .article-paragraphs p {
+      font-size: 1.14rem;
+      line-height: 1.88;
+      color: rgba(255, 253, 243, 0.94);
+      margin-bottom: 26px;
+      text-align: left;
+    }
+
+    /* Letra capitular elegante no primeiro parágrafo */
+    .article-paragraphs p:first-of-type::first-letter {
+      float: left;
+      font-family: var(--font-display);
+      font-size: 3.6rem;
+      font-weight: 800;
+      line-height: 0.88;
+      padding-right: 14px;
+      padding-top: 4px;
+      color: var(--ss-cyan);
+    }
+
+    /* Caixa Consultiva SS Agro dentro do artigo */
+    .article-cta-box {
+      margin: 42px 0 28px;
+      padding: 32px;
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(135deg, rgba(93, 224, 230, 0.14) 0%, rgba(0, 74, 173, 0.28) 100%),
+        rgba(9, 25, 40, 0.9);
+      border: 1px solid rgba(93, 224, 230, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .article-cta-box__text h4 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      color: var(--ss-white);
+      margin-bottom: 6px;
+    }
+
+    .article-cta-box__text p {
+      color: var(--ss-gray-light);
+      font-size: 0.96rem;
+      margin: 0;
+    }
+
+    /* Barra de Compartilhamento e Ações */
+    .article-share-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-top: 28px;
+      margin-top: 32px;
+      border-top: 1px solid rgba(93, 224, 230, 0.2);
+    }
+
+    .article-share-buttons {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ss-cream);
+      background: rgba(21, 53, 82, 0.75);
+      border: 1px solid rgba(93, 224, 230, 0.35);
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-fast);
+    }
+
+    .share-btn:hover {
+      border-color: var(--ss-cyan);
+      color: var(--ss-cyan);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-cyan);
+    }
+
+    /* Seção de Outras Notícias Relacionadas */
+    .related-section {
+      padding: 64px 0 90px;
+      border-top: 1px solid rgba(93, 224, 230, 0.15);
+      background: rgba(9, 25, 40, 0.5);
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 26px;
+      margin-top: 36px;
+    }
+
+    @media (max-width: 960px) {
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de progresso de leitura no topo da página -->
+  <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+
+  <!-- Luzes decorativas de fundo com as cores oficiais (#5de0e6 e #004aad) -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-orb ambient-orb--cyan"></div>
+    <div class="ambient-orb ambient-orb--royal"></div>
+  </div>
+
+  <!-- CABEÇALHO FIXO COM A LOGO OFICIAL DA SS AGRO -->
+  <header class="navbar scrolled" id="navbar">
+    <div class="container navbar__inner">
+      <a href="index.html#inicio" class="navbar__logo" aria-label="SS Agro - Página Inicial">
+        <img src="assets/logo-ssagro.png" alt="Logo Oficial SS Agro - Software de Gestão" />
+      </a>
+
+      <nav aria-label="Menu Principal">
+        <ul class="navbar__links" id="navLinks">
+          <li><a href="index.html#inicio" class="navbar__link">Início</a></li>
+          <li><a href="index.html#segmentos" class="navbar__link">Segmentos</a></li>
+          <li><a href="index.html#solucoes" class="navbar__link">Soluções ERP</a></li>
+          <li><a href="index.html#modulos" class="navbar__link">16 Módulos</a></li>
+          <li><a href="index.html#sobre" class="navbar__link">Sobre Nós</a></li>
+          <li><a href="index.html#blog" class="navbar__link active">Blog SS Agro</a></li>
+          <li><a href="index.html#contato" class="navbar__link">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div class="navbar__actions">
+        <a href="index.html#blog" class="btn btn--outline btn--sm">
+          <span>← Voltar ao Blog</span>
+        </a>
+        <a
+          href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn--primary btn--sm"
+        >
+          <span>Solicitar Demonstração</span>
+          <span class="btn__icon">→</span>
+        </a>
+        <button class="navbar__mobile-toggle" id="mobileToggle" aria-label="Abrir Menu" aria-expanded="false">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- CABEÇALHO E CAPA DO ARTIGO -->
+    <section class="article-hero">
+      <div class="article-container">
+        <nav class="article-breadcrumb" aria-label="Navegação estrutural">
+          <a href="index.html">Início</a>
+          <span>/</span>
+          <a href="index.html#blog">Blog SS Agro</a>
+          <span>/</span>
+          <span id="breadcrumbCategory">Artigo</span>
+        </nav>
+
+        <div class="article-meta-bar">
+          <span class="article-category-badge" id="articleCategory">Clima e Plantio</span>
+          <span class="article-meta-item">
+            📅 <span id="articleDate">15 de Out, 2026</span>
+          </span>
+          <span class="article-meta-item">
+            ⏱️ <span id="articleReadTime">4 min de leitura</span>
+          </span>
+          <span class="article-meta-item" title="Total de leituras contabilizadas no Painel Gerencial">
+            👁️ <strong id="articleViews">0</strong> leituras
+          </span>
+        </div>
+
+        <h1 class="article-title" id="articleTitle">Carregando notícia...</h1>
+
+        <div class="article-lead" id="articleSubtitle"></div>
+
+        <div class="article-cover-wrapper">
+          <div class="article-cover-inner">
+            <img id="articleImage" src="assets/blog-1.jpg" alt="Imagem de capa da notícia SS Agro" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORPO COMPLETO DO ARTIGO -->
+    <section class="article-body-section">
+      <div class="article-container">
+        <article class="article-content-card">
+          <div class="article-paragraphs" id="articleContent">
+            <!-- Parágrafos inseridos dinamicamente pelo JavaScript -->
+          </div>
+
+          <!-- Destaque Institucional SS Agro -->
+          <div class="article-cta-box">
+            <div class="article-cta-box__text">
+              <h4>Potencialize a Gestão do seu Agronegócio com a SS Agro</h4>
+              <p>
+                Controle estoque, compras, vendas, fiscal, financeiro e produção com um ERP 100% pensado para a realidade do campo e das distribuidoras.
+              </p>
+            </div>
+            <a
+              href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Gostaria%20de%20conhecer%20o%20ERP%20da%20SS%20Agro."
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary"
+            >
+              <span>Solicitar Demonstração</span>
+              <span class="btn__icon">→</span>
+            </a>
+          </div>
+
+          <!-- Barra de Compartilhamento e Ações -->
+          <div class="article-share-bar">
+            <div style="font-size: 0.92rem; color: var(--ss-gray-muted);">
+              ✍️ Por <strong style="color: var(--ss-cream);" id="articleAuthor">Equipe SS Agro</strong>
+            </div>
+
+            <div class="article-share-buttons">
+              <a
+                href="#"
+                id="shareWhatsappBtn"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="share-btn"
+              >
+                <span>💬 Compartilhar no WhatsApp</span>
+              </a>
+              <button type="button" class="share-btn" id="copyLinkBtn">
+                <span>🔗 Copiar Link da Matéria</span>
+              </button>
+              <a href="admin.html" class="share-btn">
+                <span>📊 Ver no Gráfico Gerencial</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- OUTRAS NOTÍCIAS DO BLOG SS AGRO -->
+    <section class="related-section">
+      <div class="container">
+        <div class="section-header" style="margin-bottom: 24px;">
+          <span class="section-tag">Continue Lendo</span>
+          <h2 class="section-title" style="font-size: clamp(1.7rem, 2.8vw, 2.3rem);">
+            Outras notícias em destaque no <span class="text-gradient">Blog SS Agro</span>
+          </h2>
+        </div>
+
+        <div class="related-grid" id="relatedPostsGrid">
+          <!-- Outros artigos carregados dinamicamente -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- RODAPÉ OFICIAL SS AGRO (COM OS ENDEREÇOS DE RIO VERDE E GOIÂNIA) -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <img src="assets/logo-ssagro.png" alt="Logo Oficial SS Agro" class="footer__logo" />
+          <p class="footer__desc">
+            Muito mais que um software. Desenvolvemos, implantamos, treinamos e damos suporte ágil para transformar a gestão do seu agronegócio desde 2012.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Unidade Rio Verde - GO</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#contato">Rua 12, 631 - Sala 1</a></li>
+            <li><a href="index.html#contato">Jardim Goiás</a></li>
+            <li><a href="index.html#contato">CEP: 75.903-425 • Rio Verde - Goiás</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Unidade Goiânia - GO</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#contato">Residencial Amazônia Park 3, Ap. 1003</a></li>
+            <li><a href="index.html#contato">Parque Amazônia</a></li>
+            <li><a href="index.html#contato">CEP: 74.835-230 • Goiânia - Goiás</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__heading">Acesso Rápido</h4>
+          <ul class="footer__links">
+            <li><a href="index.html#inicio">Página Inicial</a></li>
+            <li><a href="index.html#blog">Blog SS Agro</a></li>
+            <li><a href="admin.html">📊 Painel Gerencial do Blog</a></li>
+            <li><a href="tel:+556436234043">(64) 3623-4043</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <span>Copyright © 2021 - 2026 SS-Agro Sistemas de Gestão. Todos os direitos reservados.</span>
+        <span>Rio Verde - GO • Goiânia - GO</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Botão Flutuante de WhatsApp -->
+  <a
+    href="https://wa.me/5564984360638?text=Ol%C3%A1!%20Estou%20interessado(a)%20e%20gostaria%20de%20falar%20com%20um%20representante."
+    target="_blank"
+    rel="noopener noreferrer"
+    class="whatsapp-float"
+    aria-label="Falar pelo WhatsApp"
+  >
+    <span>💬 Falar com Especialista</span>
+  </a>
+
+  <script src="blog-data.js?v=8"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Barra de progresso de leitura no topo
+      const scrollProgressBar = document.getElementById('scrollProgressBar');
+      window.addEventListener(
+        'scroll',
+        () => {
+          const scrollTop = window.scrollY;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+          if (scrollProgressBar) {
+            scrollProgressBar.style.width = `${pct}%`;
+          }
+        },
+        { passive: true }
+      );
+
+      // 2. Identifica qual notícia abrir pela URL (?slug=... ou ?id=...)
+      const params = new URLSearchParams(window.location.search);
+      const slugOrId = params.get('slug') || params.get('id');
+
+      // 3. Busca os dados da notícia e registra +1 leitura no sistema
+      let post = await window.SSAgroBlog.getPostByKey(slugOrId);
+      if (!post) return;
+
+      const updatedPost = await window.SSAgroBlog.recordView(post.id || post.slug);
+      if (updatedPost) {
+        post = updatedPost;
+      }
+
+      // 4. Preenche a tela com todos os dados da matéria
+      document.title = `Blog SS Agro | ${post.title}`;
+      document.getElementById('breadcrumbCategory').textContent = post.category;
+      document.getElementById('articleCategory').textContent = post.category;
+      document.getElementById('articleDate').textContent = window.SSAgroBlog.formatDateBR(
+        post.createdAt
+      );
+      document.getElementById('articleReadTime').textContent =
+        post.readTime || '4 min de leitura';
+      document.getElementById('articleViews').textContent = (
+        post.views || 0
+      ).toLocaleString('pt-BR');
+      document.getElementById('articleTitle').textContent = post.title;
+      document.getElementById('articleSubtitle').textContent = post.subtitle || '';
+      document.getElementById('articleAuthor').textContent =
+        post.author || 'Equipe de Inteligência SS Agro';
+
+      const imgEl = document.getElementById('articleImage');
+      imgEl.src = post.image || 'assets/blog-1.jpg';
+      imgEl.alt = post.title;
+
+      // Renderiza cada parágrafo do conteúdo completo
+      const contentContainer = document.getElementById('articleContent');
+      contentContainer.innerHTML = '';
+      const paragraphs = Array.isArray(post.content)
+        ? post.content
+        : String(post.content || '')
+            .split(/\n\s*\n|\n/)
+            .filter((line) => line.trim().length > 0);
+
+      paragraphs.forEach((pText) => {
+        const p = document.createElement('p');
+        p.textContent = pText;
+        contentContainer.appendChild(p);
+      });
+
+      // 5. Botões de compartilhamento
+      const currentUrl = window.location.href;
+      const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
+      if (shareWhatsappBtn) {
+        const text = `Confira este artigo do Blog SS Agro: *${post.title}* - ${currentUrl}`;
+        shareWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      }
+
+      const copyLinkBtn = document.getElementById('copyLinkBtn');
+      if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(currentUrl).then(() => {
+            const original = copyLinkBtn.innerHTML;
+            copyLinkBtn.innerHTML = '<span>✓ Link Copiado com Sucesso!</span>';
+            setTimeout(() => {
+              copyLinkBtn.innerHTML = original;
+            }, 2200);
+          });
+        });
+      }
+
+      // 6. Carrega as outras notícias relacionadas no final da página
+      const allPublished = await window.SSAgroBlog.getPublishedPosts();
+      const related = allPublished
+        .filter((item) => item.id !== post.id && item.slug !== post.slug)
+        .slice(0, 3);
+
+      const relatedGrid = document.getElementById('relatedPostsGrid');
+      if (relatedGrid) {
+        relatedGrid.innerHTML = related
+          .map(
+            (item) => `
+          <a href="artigo.html?slug=${encodeURIComponent(item.slug)}" class="blog-card spotlight-card">
+            <div class="blog-card__img">
+              <img src="${item.image}" alt="${item.title.replace(/"/g, '&quot;')}" loading="lazy" />
+              <span class="blog-card__tag">${item.category}</span>
+            </div>
+            <div class="blog-card__body">
+              <h3 class="blog-card__title">${item.title}</h3>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-top:auto;">
+                <span class="blog-card__more">Ler artigo completo <span>→</span></span>
+                <span style="font-size:0.8rem; color:var(--ss-gray-muted);">👁️ ${(
+                  item.views || 0
+                ).toLocaleString('pt-BR')}</span>
+              </div>
+            </div>
+          </a>
+        `
+          )
+          .join('');
+      }
+    });
+  </script>
+</body>
+</html>

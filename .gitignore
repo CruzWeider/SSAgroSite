@@ -1,0 +1,5 @@
+# Arquivos temporários do Python e Sistema Operacional
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
