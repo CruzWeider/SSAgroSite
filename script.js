@@ -45,9 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     navLinks.forEach((link) => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === `#${currentSectionId}`) {
-        link.classList.add('active');
+      const isCurrent = link.getAttribute('href') === `#${currentSectionId}`;
+      link.classList.toggle('active', isCurrent);
+      if (isCurrent) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
       }
     });
   }
@@ -56,25 +59,40 @@ document.addEventListener('DOMContentLoaded', () => {
   handleScroll();
 
   /* --------------------------------------------------------------------------
-   * 2. MENU MOBILE (ABRIR / FECHAR NO CELULAR)
+   * 2. MENU MOBILE (ABRIR / FECHAR NO CELULAR + ACESSIBILIDADE TECLADO)
    * -------------------------------------------------------------------------- */
   const mobileToggle = document.getElementById('mobileToggle');
   const navLinksContainer = document.getElementById('navLinks');
 
   if (mobileToggle && navLinksContainer) {
-    mobileToggle.addEventListener('click', () => {
-      navLinksContainer.classList.toggle('open');
-      const isOpen = navLinksContainer.classList.contains('open');
-      mobileToggle.setAttribute('aria-expanded', isOpen);
+    const setMobileMenuState = (isOpen) => {
+      navLinksContainer.classList.toggle('open', isOpen);
+      mobileToggle.setAttribute('aria-expanded', String(isOpen));
+      mobileToggle.setAttribute(
+        'aria-label',
+        isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'
+      );
       mobileToggle.innerHTML = isOpen ? '✕' : '☰';
+    };
+
+    mobileToggle.addEventListener('click', () => {
+      const isOpen = !navLinksContainer.classList.contains('open');
+      setMobileMenuState(isOpen);
     });
 
     // Fecha o menu automaticamente ao clicar em qualquer link
     navLinks.forEach((link) => {
       link.addEventListener('click', () => {
-        navLinksContainer.classList.remove('open');
-        mobileToggle.innerHTML = '☰';
+        setMobileMenuState(false);
       });
+    });
+
+    // Fecha o menu ao pressionar a tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navLinksContainer.classList.contains('open')) {
+        setMobileMenuState(false);
+        mobileToggle.focus();
+      }
     });
   }
 
@@ -200,10 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
 
-      tabButtons.forEach((b) => b.classList.remove('active'));
+      tabButtons.forEach((b) => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
       solutionPanels.forEach((panel) => panel.classList.remove('active'));
 
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       const activePanel = document.getElementById(`panel-${targetTab}`);
       if (activePanel) {
         activePanel.classList.add('active');
@@ -221,16 +243,22 @@ document.addEventListener('DOMContentLoaded', () => {
     chip.addEventListener('click', () => {
       const category = chip.getAttribute('data-filter');
 
-      filterChips.forEach((c) => c.classList.remove('active'));
+      filterChips.forEach((c) => {
+        c.classList.remove('active');
+        c.setAttribute('aria-pressed', 'false');
+      });
       chip.classList.add('active');
+      chip.setAttribute('aria-pressed', 'true');
 
       moduleCards.forEach((card) => {
         const cardCat = card.getAttribute('data-category');
         if (category === 'all' || cardCat === category) {
           card.classList.remove('hidden');
+          card.removeAttribute('aria-hidden');
           card.style.animation = 'fadeSlideIn 0.35s ease forwards';
         } else {
           card.classList.add('hidden');
+          card.setAttribute('aria-hidden', 'true');
         }
       });
     });
@@ -255,24 +283,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* --------------------------------------------------------------------------
-   * 10. BANNER DE VÍDEO COM PLAYLIST CONTÍNUA EM LOOP (DUPLO PLAYER CROSSFADE)
-   * --------------------------------------------------------------------------
-   * Explicação simples para programador júnior:
-   * - Usamos DOIS elementos <video> sobrepostos (#heroVideo1 e #heroVideo2).
-   * - Faltando 0.55 segundo para o Vídeo 1 acabar, já damos play no Vídeo 2 do
-   *   início (currentTime = 0) e fazemos a troca suave de opacidade (crossfade
-   *   de 1.2 segundo), enquanto ambos os vídeos ainda estão em movimento!
-   * - Assim a imagem nunca fica parada no final e alterna infinitamente entre
-   *   o Vídeo 1 e o Vídeo 2.
+   * 10. BANNER DE VÍDEO HIGGSFIELD COM PLAYLIST CONTÍNUA AUTOMÁTICA
    * -------------------------------------------------------------------------- */
-  const video1 = document.getElementById('heroVideo1');
-  const video2 = document.getElementById('heroVideo2');
+  const heroVideos = [
+    document.getElementById('heroVideo1'),
+    document.getElementById('heroVideo2'),
+    document.getElementById('heroVideo3'),
+  ].filter(Boolean);
 
-  if (video1 && video2) {
-    let currentActiveVideo = 1;
+  if (heroVideos.length >= 2) {
+    let currentVideoIdx = 0;
     let isTransitioning = false;
 
     function safePlay(vid) {
+      if (!vid) return;
       vid.muted = true;
       try {
         vid.currentTime = 0;
@@ -286,49 +310,39 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    function transitionToNextVideo() {
-      if (isTransitioning) return;
+    function transitionToVideo(nextIdx) {
+      if (isTransitioning || nextIdx === currentVideoIdx || !heroVideos[nextIdx]) return;
       isTransitioning = true;
 
-      if (currentActiveVideo === 1) {
-        // Inicia o Vídeo 2 do zero e faz a fusão suave (crossfade)
-        safePlay(video2);
-        video2.classList.add('active');
-        video1.classList.remove('active');
-        currentActiveVideo = 2;
+      const prevVideo = heroVideos[currentVideoIdx];
+      const nextVideo = heroVideos[nextIdx];
 
-        setTimeout(() => {
-          video1.pause();
-          try {
-            video1.currentTime = 0;
-          } catch (_) {}
-          isTransitioning = false;
-        }, 1200);
-      } else {
-        // Inicia o Vídeo 1 do zero e faz a fusão suave (crossfade)
-        safePlay(video1);
-        video1.classList.add('active');
-        video2.classList.remove('active');
-        currentActiveVideo = 1;
+      safePlay(nextVideo);
+      nextVideo.classList.add('active');
+      if (prevVideo) prevVideo.classList.remove('active');
 
-        setTimeout(() => {
-          video2.pause();
+      currentVideoIdx = nextIdx;
+
+      setTimeout(() => {
+        if (prevVideo) {
+          prevVideo.pause();
           try {
-            video2.currentTime = 0;
+            prevVideo.currentTime = 0;
           } catch (_) {}
-          isTransitioning = false;
-        }, 1200);
-      }
+        }
+        isTransitioning = false;
+      }, 1200);
     }
 
-    // 1. Escuta o evento nativo 'ended'
-    video1.addEventListener('ended', transitionToNextVideo);
-    video2.addEventListener('ended', transitionToNextVideo);
+    function transitionToNextVideo() {
+      const nextIdx = (currentVideoIdx + 1) % heroVideos.length;
+      transitionToVideo(nextIdx);
+    }
 
-    // 2. Inicia o crossfade suave 0.55s antes do vídeo acabar para nunca parar no último frame
     function checkVideoProgress() {
       if (isTransitioning) return;
-      const activeVid = currentActiveVideo === 1 ? video1 : video2;
+      const activeVid = heroVideos[currentVideoIdx];
+      if (!activeVid) return;
 
       if (activeVid.ended) {
         transitionToNextVideo();
@@ -344,16 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    video1.addEventListener('timeupdate', checkVideoProgress);
-    video2.addEventListener('timeupdate', checkVideoProgress);
+    heroVideos.forEach((vid) => {
+      vid.addEventListener('ended', transitionToNextVideo);
+      vid.addEventListener('timeupdate', checkVideoProgress);
+    });
 
-    // 3. Watchdog a cada 200ms: garante que nunca fique parado mesmo se o navegador atrasar eventos
     setInterval(checkVideoProgress, 200);
+    safePlay(heroVideos[0]);
 
-    // Inicia a reprodução garantida do primeiro vídeo
-    safePlay(video1);
-
-    // Efeito Parallax suave em ambos os vídeos ao rolar a página
     window.addEventListener(
       'scroll',
       () => {
@@ -361,12 +373,76 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentScrollY < window.innerHeight * 1.2) {
           const scale = 1.04 + (currentScrollY / window.innerHeight) * 0.06;
           const translateY = (currentScrollY * 0.16).toFixed(1);
-          video1.style.transform = `scale(${scale.toFixed(3)}) translateY(${translateY}px)`;
-          video2.style.transform = `scale(${scale.toFixed(3)}) translateY(${translateY}px)`;
+          heroVideos.forEach((vid) => {
+            vid.style.transform = `scale(${scale.toFixed(3)}) translateY(${translateY}px)`;
+          });
         }
       },
       { passive: true }
     );
+  }
+
+  /* --------------------------------------------------------------------------
+   * 10.1 RODAPÉ INTELIGENTE DO CONSOLE HERO (RECOMENDAÇÃO + CTA PERSONALIZADO)
+   * -------------------------------------------------------------------------- */
+  const smartPills = document.querySelectorAll('.hero-console__tab, .hero-smart-pill');
+  const smartActionPanel = document.getElementById('heroSmartActionPanel');
+  const smartTitle = document.getElementById('heroSmartTitle');
+  const smartDesc = document.getElementById('heroSmartDesc');
+  const smartCta = document.getElementById('heroSmartCta');
+  const smartCtaText = document.getElementById('heroSmartCtaText');
+  const heroPhoneDock = document.getElementById('heroPhoneDock');
+
+  const smartProfiles = {
+    insumos: {
+      title: 'Controle de Lotes, Receituário Agronômico e Barter',
+      desc: 'Compras, estoque físico e futuro, validade de sementes/defensivos, NF-e e comissões.',
+      ctaText: 'Proposta p/ Insumos',
+      whatsappUrl:
+        'https://wa.me/5564984360638?text=Ol%C3%A1!%20Tenho%20uma%20Distribuidora%20de%20Insumos%20e%20quero%20conhecer%20o%20SS-Agro%20ERP.',
+    },
+    graos: {
+      title: 'Pesagem de Balança, Romaneios, Contratos e Silos',
+      desc: 'Entrada e saída de safra, descontos de umidade/impureza, tarifas e saldos de produtores.',
+      ctaText: 'Proposta p/ Armazéns',
+      whatsappUrl:
+        'https://wa.me/5564984360638?text=Ol%C3%A1!%20Opero%20com%20Armazenagem%20e%20Origina%C3%A7%C3%A3o%20de%20Gr%C3%A3os%20e%20quero%20conhecer%20o%20SS-Agro%20ERP.',
+    },
+    mobile: {
+      title: 'Pedidos no Campo, Limite de Crédito e Estoque Real',
+      desc: 'App para celular e tablet 100% sincronizado ao ERP com consulta imediata de estoque e metas.',
+      ctaText: 'Ver App Mobile',
+      whatsappUrl:
+        'https://wa.me/5564984360638?text=Ol%C3%A1!%20Quero%20conhecer%20o%20App%20For%C3%A7a%20de%20Vendas%20Mobile%20integrado%20ao%20SS-Agro%20ERP.',
+    },
+  };
+
+  if (smartPills.length > 0) {
+    smartPills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const key = pill.getAttribute('data-profile');
+        const data = key ? smartProfiles[key] : null;
+        if (!data) return;
+
+        smartPills.forEach((p) => {
+          p.classList.remove('active');
+          p.setAttribute('aria-selected', 'false');
+        });
+        pill.classList.add('active');
+        pill.setAttribute('aria-selected', 'true');
+        if (smartActionPanel && pill.id) {
+          smartActionPanel.setAttribute('aria-labelledby', pill.id);
+        }
+
+        if (smartTitle) smartTitle.textContent = data.title;
+        if (smartDesc) smartDesc.textContent = data.desc;
+        if (smartCta) smartCta.setAttribute('href', data.whatsappUrl);
+        if (smartCtaText) smartCtaText.textContent = data.ctaText;
+        if (heroPhoneDock) {
+          heroPhoneDock.classList.toggle('is-highlighted', key === 'mobile');
+        }
+      });
+    });
   }
 
   /* --------------------------------------------------------------------------
@@ -385,8 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!Array.isArray(posts) || posts.length === 0) {
           blogGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(19, 49, 77, 0.5); border-radius: 18px; border: 1px solid rgba(93, 224, 230, 0.2);">
-              <p style="color: var(--ss-gray-muted); margin-bottom: 14px;">Nenhuma notícia publicada no momento.</p>
-              <a href="admin.html" class="btn btn--outline btn--sm">Gerenciar Notícias no Painel</a>
+              <p style="color: var(--ss-gray-muted); margin-bottom: 0;">Nenhuma notícia publicada no momento.</p>
             </div>
           `;
           return;
@@ -435,4 +510,150 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Usando cards estáticos de fallback no blog:', err);
       });
   }
+
+  /* --------------------------------------------------------------------------
+   * 12. SIMULADOR INTERATIVO DO APP SS AGRO FORÇA DE VENDAS (F.V.)
+   * -------------------------------------------------------------------------- */
+  const fvFeatureTabs = Array.from(document.querySelectorAll('#fvFeatureTabs .fv-ftab'));
+  const fvAppScreens = Array.from(document.querySelectorAll('#fvPhoneViewport .fv-app-screen'));
+  const fvGotoButtons = Array.from(document.querySelectorAll('#fvPhoneViewport [data-goto]'));
+  const fvPeriodRadios = Array.from(document.querySelectorAll('input[name="fvPeriod"]'));
+
+  if (fvFeatureTabs.length > 0 && fvAppScreens.length > 0) {
+    let fvAutoCycle = null;
+    const screenOrder = ['home', 'estoque', 'pedidos', 'dashboards', 'login'];
+    let currentScreenIdx = 0;
+
+    const activateFvScreen = (screenName) => {
+      const idx = screenOrder.indexOf(screenName);
+      if (idx !== -1) {
+        currentScreenIdx = idx;
+      }
+
+      fvFeatureTabs.forEach((tab) => {
+        const isMatch = tab.getAttribute('data-screen') === screenName;
+        tab.classList.toggle('active', isMatch);
+        tab.setAttribute('aria-selected', String(isMatch));
+      });
+
+      fvAppScreens.forEach((screen) => {
+        const isMatch = screen.id === `fvScreen-${screenName}`;
+        screen.classList.toggle('active', isMatch);
+      });
+    };
+
+    const startFvSimulatorCycle = () => {
+      stopFvSimulatorCycle();
+      fvAutoCycle = setInterval(() => {
+        currentScreenIdx = (currentScreenIdx + 1) % screenOrder.length;
+        activateFvScreen(screenOrder[currentScreenIdx]);
+      }, 6500);
+    };
+
+    const stopFvSimulatorCycle = () => {
+      if (fvAutoCycle) {
+        clearInterval(fvAutoCycle);
+        fvAutoCycle = null;
+      }
+    };
+
+    fvFeatureTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const targetScreen = tab.getAttribute('data-screen');
+        if (targetScreen) {
+          activateFvScreen(targetScreen);
+          startFvSimulatorCycle();
+        }
+      });
+    });
+
+    fvGotoButtons.forEach((btn) => {
+      const triggerGoto = () => {
+        const targetScreen = btn.getAttribute('data-goto');
+        if (targetScreen) {
+          activateFvScreen(targetScreen);
+          startFvSimulatorCycle();
+        }
+      };
+      btn.addEventListener('click', triggerGoto);
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          triggerGoto();
+        }
+      });
+    });
+
+    // Interatividade dos filtros de período (Semana, Mês, Trimestre, Anos) na Tela Inicial do App
+    const baseKpis = {
+      vendido: 63218885.32,
+      faturado: 54348594.73,
+      aberto: 4494349.29,
+      devolvido: 2365859.52,
+    };
+
+    const formatCurrencyBR = (val) =>
+      val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    fvPeriodRadios.forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const mult = parseFloat(radio.getAttribute('data-mult') || '1');
+        document.querySelectorAll('.fv-app-radio').forEach((lbl) => lbl.classList.remove('active'));
+        const parentLbl = radio.closest('.fv-app-radio');
+        if (parentLbl) parentLbl.classList.add('active');
+
+        const elVendido = document.getElementById('fvKpiVendido');
+        const elFaturado = document.getElementById('fvKpiFaturado');
+        const elAberto = document.getElementById('fvKpiAberto');
+        const elDevolvido = document.getElementById('fvKpiDevolvido');
+
+        if (elVendido) elVendido.innerHTML = `<em>R$</em> ${formatCurrencyBR(baseKpis.vendido * mult)}`;
+        if (elFaturado) elFaturado.innerHTML = `<em>R$</em> ${formatCurrencyBR(baseKpis.faturado * mult)}`;
+        if (elAberto) elAberto.innerHTML = `<em>R$</em> ${formatCurrencyBR(baseKpis.aberto * mult)}`;
+        if (elDevolvido) elDevolvido.innerHTML = `<em>R$</em> ${formatCurrencyBR(baseKpis.devolvido * mult)}`;
+        stopFvSimulatorCycle();
+      });
+    });
+
+    const stageContainer = document.querySelector('.fv-interactive-stage');
+    if (stageContainer) {
+      stageContainer.addEventListener('mouseenter', stopFvSimulatorCycle);
+      stageContainer.addEventListener('mouseleave', startFvSimulatorCycle);
+      stageContainer.addEventListener('focusin', stopFvSimulatorCycle);
+      stageContainer.addEventListener('focusout', startFvSimulatorCycle);
+    }
+
+    startFvSimulatorCycle();
+  }
+
+  /* --------------------------------------------------------------------------
+   * 13. ACESSIBILIDADE TECLADO WAI-ARIA PARA TODAS AS ABAS ([role="tablist"])
+   * -------------------------------------------------------------------------- */
+  const tabLists = document.querySelectorAll('[role="tablist"]');
+  tabLists.forEach((tabList) => {
+    const tabs = Array.from(tabList.querySelectorAll('[role="tab"]'));
+    if (tabs.length === 0) return;
+
+    tabList.addEventListener('keydown', (e) => {
+      const currentIndex = tabs.indexOf(document.activeElement);
+      if (currentIndex === -1) return;
+
+      let nextIndex = -1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        nextIndex = (currentIndex + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        nextIndex = 0;
+      } else if (e.key === 'End') {
+        nextIndex = tabs.length - 1;
+      }
+
+      if (nextIndex !== -1) {
+        e.preventDefault();
+        tabs[nextIndex].focus();
+        tabs[nextIndex].click();
+      }
+    });
+  });
 });
