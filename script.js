@@ -446,19 +446,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* --------------------------------------------------------------------------
-   * 11. RENDERIZAÇÃO DINÂMICA DOS CARDS DO BLOG (CONECTADO AO PAINEL GERENCIAL)
+   * 11. SISTEMA DINÂMICO DO BLOG SS AGRO (BUSCA, FILTROS E HISTÓRICO DE NOTÍCIAS)
    * --------------------------------------------------------------------------
    * Explicação simples para programador júnior:
-   * - Busca todas as notícias marcadas como "Publicadas" na nossa API (/api/posts)
-   *   ou no banco local e cria os cards automaticamente dentro de #blogGrid.
-   * - Assim, qualquer notícia nova, editada ou ocultada no Painel Gerencial
-   *   (admin.html) reflete imediatamente na página inicial!
+   * - Busca as matérias da API (/api/posts) ou do banco local.
+   * - Gera filtros dinâmicos por categoria com base nas matérias publicadas.
+   * - Permite pesquisa em tempo real por palavra-chave no título e conteúdo.
+   * - Exibe os 4 artigos iniciais e expande os artigos históricos com o botão
+   *   "Ver mais notícias antigas".
    * -------------------------------------------------------------------------- */
   const blogGrid = document.getElementById('blogGrid');
+  const blogEditionsNav = document.getElementById('blogEditionsNav');
+  const siteBlogSearchInput = document.getElementById('siteBlogSearchInput');
+  const siteBlogSearchClear = document.getElementById('siteBlogSearchClear');
+  const blogCategoryFilters = document.getElementById('blogCategoryFilters');
+  const blogResultsCount = document.getElementById('blogResultsCount');
+  const blogLoadMoreWrap = document.getElementById('blogLoadMoreWrap');
+  const blogLoadMoreBtn = document.getElementById('blogLoadMoreBtn');
+  const blogLoadMoreBadge = document.getElementById('blogLoadMoreBadge');
+
   if (blogGrid && window.SSAgroBlog) {
     window.SSAgroBlog.getPublishedPosts()
-      .then((posts) => {
-        if (!Array.isArray(posts) || posts.length === 0) {
+      .then((allPublishedPosts) => {
+        if (!Array.isArray(allPublishedPosts) || allPublishedPosts.length === 0) {
           blogGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(19, 49, 77, 0.5); border-radius: 18px; border: 1px solid rgba(93, 224, 230, 0.2);">
               <p style="color: var(--ss-gray-muted); margin-bottom: 0;">Nenhuma notícia publicada no momento.</p>
@@ -467,44 +477,270 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        blogGrid.innerHTML = posts
-          .map((post, idx) => {
-            const delayClass = `delay-${(idx % 4) + 1}`;
-            const safeTitle = String(post.title || '').replace(/"/g, '&quot;');
-            const safeCat = String(post.category || 'Artigo').replace(/"/g, '&quot;');
-            const viewsCount = Number(post.views || 0).toLocaleString('pt-BR');
-            return `
-              <a
-                href="artigo.html?slug=${encodeURIComponent(post.slug)}"
-                class="blog-card spotlight-card reveal is-visible ${delayClass}"
-              >
-                <div class="blog-card__img">
-                  <img src="${post.image || 'assets/blog-1.jpg'}" alt="${safeTitle}" loading="lazy" />
-                  <span class="blog-card__tag">${safeCat}</span>
-                </div>
-                <div class="blog-card__body">
-                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.76rem; color: var(--ss-gray-muted); margin-bottom: 8px;">
-                    <span>📅 ${window.SSAgroBlog.formatDateBR(post.publishedAt)}</span>
-                    <span style="color: var(--ss-cyan); font-weight: 600;">👁️ ${viewsCount} leituras</span>
-                  </div>
-                  <h3 class="blog-card__title">${post.title}</h3>
-                  <div class="blog-card__more">
-                    Ler artigo completo <span>→</span>
-                  </div>
-                </div>
-              </a>
-            `;
-          })
-          .join('');
-
-        // Ativa o efeito Spotlight nos novos cards renderizados dinamicamente
-        blogGrid.querySelectorAll('.spotlight-card').forEach((card) => {
-          card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-            card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-          });
+        // Ordena com Destaque no topo, depois as mais recentes pela data
+        const sortedPosts = [...allPublishedPosts].sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
         });
+
+        let selectedCategory = 'all';
+        let searchQuery = '';
+
+        // Função para atualizar os botões de categoria
+        function updateCategoryPills() {
+          if (!blogCategoryFilters) return;
+
+          const catCounts = {};
+          sortedPosts.forEach((p) => {
+            if (p.category) {
+              catCounts[p.category] = (catCounts[p.category] || 0) + 1;
+            }
+          });
+
+          const categories = Object.keys(catCounts);
+
+          blogCategoryFilters.innerHTML = `
+            <button type="button" class="blog-pill-btn ${selectedCategory === 'all' ? 'active' : ''}" data-filter-cat="all">
+              <span>✓ Todas (${sortedPosts.length})</span>
+            </button>
+            ${categories
+              .map(
+                (cat) => `
+              <button type="button" class="blog-pill-btn ${selectedCategory === cat ? 'active' : ''}" data-filter-cat="${cat}">
+                <span>${cat} (${catCounts[cat]})</span>
+              </button>
+            `
+              )
+              .join('')}
+          `;
+        }
+
+        function renderFilteredPosts() {
+          const query = searchQuery.trim().toLowerCase();
+
+          // Atualiza botão de limpar busca
+          if (siteBlogSearchClear) {
+            siteBlogSearchClear.style.display = query ? 'inline-flex' : 'none';
+          }
+
+          const filtered = sortedPosts.filter((post) => {
+            // Filtro por Categoria
+            const matchCat =
+              selectedCategory === 'all' || post.category === selectedCategory;
+
+            // Busca textual inteligente (título, subtítulo, autor, categoria e conteúdo)
+            const fullText = `${post.title || ''} ${post.subtitle || ''} ${post.author || ''} ${
+              post.category || ''
+            } ${
+              Array.isArray(post.content) ? post.content.join(' ') : post.content || ''
+            }`.toLowerCase();
+            const matchSearch = !query || fullText.includes(query);
+
+            return matchCat && matchSearch;
+          });
+
+          // Mostra a contagem de resultados quando pesquisa ou filtra
+          if (blogResultsCount) {
+            if (query || selectedCategory !== 'all') {
+              blogResultsCount.style.display = 'block';
+              blogResultsCount.innerHTML = `Mostrando <strong>${filtered.length}</strong> notícia(s) encontrada(s)${
+                query ? ` para "<em>${searchQuery}</em>"` : ''
+              }.`;
+            } else {
+              blogResultsCount.style.display = 'none';
+            }
+          }
+
+          if (filtered.length === 0) {
+            blogGrid.innerHTML = `
+              <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(19, 49, 77, 0.4); border-radius: 18px; border: 1px dashed rgba(93, 224, 230, 0.3);">
+                <span style="font-size: 2.2rem; display: block; margin-bottom: 10px;">🔍</span>
+                <p style="color: var(--ss-white); font-weight: 700; font-size: 1.05rem; margin-bottom: 6px;">Nenhuma notícia encontrada</p>
+                <p style="color: var(--ss-gray-muted); font-size: 0.9rem; margin-bottom: 16px;">Tente pesquisar por outro termo ou selecione "Todas as Matérias".</p>
+                <button type="button" class="btn btn--outline btn--sm" id="blogResetFiltersBtn" style="border-radius: var(--radius-pill);">
+                  Restaurar Filtros de Busca
+                </button>
+              </div>
+            `;
+            const resetBtn = document.getElementById('blogResetFiltersBtn');
+            if (resetBtn) {
+              resetBtn.addEventListener('click', () => {
+                selectedEdition = 'all';
+                selectedCategory = 'all';
+                searchQuery = '';
+                visibleLimit = 4;
+                if (siteBlogSearchInput) siteBlogSearchInput.value = '';
+                if (blogEditionsNav) {
+                  blogEditionsNav.querySelectorAll('.blog-edition-tab').forEach((b) => b.classList.remove('active'));
+                  const first = blogEditionsNav.querySelector('[data-edition="all"]');
+                  if (first) first.classList.add('active');
+                }
+                updateCategoryPills();
+                renderFilteredPosts();
+              });
+            }
+            if (blogLoadMoreWrap) blogLoadMoreWrap.style.display = 'none';
+            return;
+          }
+
+          // Se estiver pesquisando por texto, exibe todos os resultados para comodidade;
+          // Se estiver navegando normalmente, pagina com o botão "Ver mais notícias"
+          const slicePosts = query ? filtered : filtered.slice(0, visibleLimit);
+
+          blogGrid.innerHTML = slicePosts
+            .map((post, idx) => {
+              const delayClass = `delay-${(idx % 4) + 1}`;
+              const safeTitle = String(post.title || '').replace(/"/g, '&quot;');
+              const safeCat = String(post.category || 'Artigo').replace(/"/g, '&quot;');
+              const viewsCount = Number(post.views || 0).toLocaleString('pt-BR');
+              const isFeatured = Boolean(post.featured);
+              const readTime =
+                post.readTime ||
+                window.SSAgroBlog.estimateReadTime(post.content, post.title, post.subtitle);
+              const postDate =
+                post.createdAt || post.publishedAt || new Date().toISOString().slice(0, 10);
+
+              return `
+                <a
+                  href="artigo.html?slug=${encodeURIComponent(post.slug)}"
+                  class="blog-card spotlight-card reveal is-visible ${
+                    isFeatured ? 'blog-card--featured' : ''
+                  } ${delayClass}"
+                >
+                  <div class="blog-card__img">
+                    <img src="${post.image || 'assets/blog-1.jpg'}" alt="${safeTitle}" loading="lazy" />
+                    <span class="blog-card__tag">${safeCat}</span>
+                    ${isFeatured ? '<span class="blog-card__featured-tag">⭐ Destaque</span>' : ''}
+                  </div>
+                  <div class="blog-card__body">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.76rem; color: var(--ss-gray-muted); margin-bottom: 8px;">
+                      <span>📅 ${window.SSAgroBlog.formatDateBR(postDate)}</span>
+                      <span style="color: var(--ss-cyan); font-weight: 600;">⏱️ ${readTime}</span>
+                    </div>
+                    <h3 class="blog-card__title">${post.title}</h3>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; font-size: 0.82rem;">
+                      <span style="color: var(--ss-gray-muted);">👁️ ${viewsCount} leituras</span>
+                      <div class="blog-card__more" style="margin-top: 0;">
+                        Ler artigo completo <span>→</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              `;
+            })
+            .join('');
+
+          // Ativa o efeito Spotlight nos cards
+          blogGrid.querySelectorAll('.spotlight-card').forEach((card) => {
+            card.addEventListener('mousemove', (e) => {
+              const rect = card.getBoundingClientRect();
+              card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+              card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            });
+          });
+
+          // Controle do botão interativo "Ver mais notícias" / "Ver menos notícias (Recolher)"
+          // Permite que as notícias APAREÇAM ao expandir e DESAPAREÇAM ao recolher
+          if (blogLoadMoreWrap) {
+            if (!query && filtered.length > 4) {
+              blogLoadMoreWrap.style.display = 'block';
+
+              if (visibleLimit < filtered.length) {
+                // Estado: Existem notícias antigas para APARECER (expandir de 4 em 4)
+                const remaining = filtered.length - visibleLimit;
+                blogLoadMoreWrap.innerHTML = `
+                  <button type="button" class="blog-load-more-pill" id="blogLoadMoreBtn" title="Clique para exibir mais notícias antigas">
+                    <span>Ver mais notícias</span>
+                    <span class="blog-load-more-badge" id="blogLoadMoreBadge">${remaining} restantes ↓</span>
+                  </button>
+                `;
+                const moreBtn = document.getElementById('blogLoadMoreBtn');
+                if (moreBtn) {
+                  moreBtn.addEventListener('click', () => {
+                    visibleLimit += 4;
+                    renderFilteredPosts();
+                  });
+                }
+              } else {
+                // Estado: Todas as notícias foram exibidas -> Botão para DESAPARECER (recolher de volta para 4)
+                blogLoadMoreWrap.innerHTML = `
+                  <button type="button" class="blog-load-more-pill blog-load-more-pill--collapse" id="blogLoadMoreBtn" title="Clique para recolher e esconder as notícias antigas">
+                    <span>Ver menos notícias (Recolher)</span>
+                    <span class="blog-load-more-badge" id="blogLoadMoreBadge">↑</span>
+                  </button>
+                `;
+                const collapseBtn = document.getElementById('blogLoadMoreBtn');
+                if (collapseBtn) {
+                  collapseBtn.addEventListener('click', () => {
+                    visibleLimit = 4;
+                    renderFilteredPosts();
+                    const blogSection = document.getElementById('blog');
+                    if (blogSection) {
+                      blogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  });
+                }
+              }
+            } else {
+              blogLoadMoreWrap.style.display = 'none';
+            }
+          }
+        }
+
+        // Listener das Abas de Edições (Site Antigo SS Agro destacado com setas vermelhas)
+        if (blogEditionsNav) {
+          blogEditionsNav.addEventListener('click', (e) => {
+            const tab = e.target.closest('.blog-edition-tab');
+            if (!tab) return;
+            blogEditionsNav.querySelectorAll('.blog-edition-tab').forEach((b) => b.classList.remove('active'));
+            tab.classList.add('active');
+            selectedEdition = tab.getAttribute('data-edition') || 'all';
+            selectedCategory = 'all'; // Reseta categoria para ver todas daquela edição
+            visibleLimit = 4; // Reseta limite de exibição
+            updateCategoryPills();
+            renderFilteredPosts();
+          });
+        }
+
+        // Listener do campo de pesquisa em tempo real
+        if (siteBlogSearchInput) {
+          siteBlogSearchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderFilteredPosts();
+          });
+        }
+
+        // Listener do botão de limpar busca
+        if (siteBlogSearchClear) {
+          siteBlogSearchClear.addEventListener('click', () => {
+            searchQuery = '';
+            if (siteBlogSearchInput) {
+              siteBlogSearchInput.value = '';
+              siteBlogSearchInput.focus();
+            }
+            renderFilteredPosts();
+          });
+        }
+
+        // Listener dos botões de categoria
+        if (blogCategoryFilters) {
+          blogCategoryFilters.addEventListener('click', (e) => {
+            const btn = e.target.closest('.blog-pill-btn');
+            if (!btn) return;
+            blogCategoryFilters
+              .querySelectorAll('.blog-pill-btn')
+              .forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedCategory = btn.getAttribute('data-filter-cat') || 'all';
+            visibleLimit = 4;
+            renderFilteredPosts();
+          });
+        }
+
+        // Inicialização
+        updateCategoryPills();
+        renderFilteredPosts();
       })
       .catch((err) => {
         console.warn('Usando cards estáticos de fallback no blog:', err);
@@ -654,6 +890,169 @@ document.addEventListener('DOMContentLoaded', () => {
         tabs[nextIndex].focus();
         tabs[nextIndex].click();
       }
+    });
+  });
+
+  /* --------------------------------------------------------------------------
+   * 14. FORMULÁRIO DE DEMONSTRAÇÃO & CONTATO COMERCIAL (LGPD & ALTA CONVERSÃO)
+   * -------------------------------------------------------------------------- */
+  const contactForm = document.getElementById('contactForm');
+  const feedbackEl = document.getElementById('contactFormFeedback');
+  const phoneInput = document.getElementById('formWhatsapp');
+
+  // Máscara dinâmica de telefone brasileiro (DDD + 8 ou 9 dígitos)
+  if (phoneInput) {
+    phoneInput.addEventListener('input', (e) => {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+
+      if (v.length > 10) {
+        v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+      } else if (v.length > 6) {
+        v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
+      } else if (v.length > 2) {
+        v = v.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
+      } else if (v.length > 0) {
+        v = v.replace(/^(\d*)$/, '($1');
+      }
+      e.target.value = v;
+    });
+  }
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('formNome')?.value.trim();
+      const whatsapp = document.getElementById('formWhatsapp')?.value.trim();
+      const email = document.getElementById('formEmail')?.value.trim();
+      const empresa = document.getElementById('formEmpresa')?.value.trim();
+      const segmento = document.getElementById('formSegmento')?.value || 'Distribuidora de Insumos';
+      const mensagem = document.getElementById('formMensagem')?.value.trim() || 'Sem observações adicionais.';
+      const lgpdChecked = document.getElementById('formLgpd')?.checked;
+      const submitBtn = document.getElementById('formSubmitBtn');
+
+      if (!nome || !whatsapp || !email || !empresa) {
+        if (feedbackEl) {
+          feedbackEl.className = 'form-feedback error';
+          feedbackEl.innerHTML = '⚠️ Por favor, preencha todos os campos obrigatórios (*).';
+          feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        return;
+      }
+
+      if (!lgpdChecked) {
+        if (feedbackEl) {
+          feedbackEl.className = 'form-feedback error';
+          feedbackEl.innerHTML = '⚠️ É necessário aceitar a Política de Privacidade para prosseguir.';
+          feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        return;
+      }
+
+      // Desabilita botão com estado de carregamento
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Processando Solicitação...</span>';
+      }
+
+      const payload = { nome, whatsapp, email, empresa, segmento, mensagem, origem: 'Formulário do Site' };
+
+      // Tenta gravar na API do servidor local/produção (silencioso em caso de falha de conexão)
+      try {
+        await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        // Sem impacto caso o servidor seja estático
+      }
+
+      // Mensagem estruturada para o WhatsApp Oficial SS Agro
+      const text = 
+`Olá, Equipe SS Agro!
+Gostaria de solicitar uma demonstração do sistema.
+
+📌 *DADOS DO CONTATO:*
+• *Nome:* ${nome}
+• *Empresa:* ${empresa}
+• *Segmento:* ${segmento}
+• *WhatsApp:* ${whatsapp}
+• *E-mail:* ${email}
+${mensagem !== 'Sem observações adicionais.' ? `• *Mensagem:* ${mensagem}` : ''}
+
+Solicitação enviada através do site www.ssagro.com.br.`;
+
+      const encodedText = encodeURIComponent(text);
+      const whatsappUrl = `https://wa.me/5564984360638?text=${encodedText}`;
+
+      if (feedbackEl) {
+        feedbackEl.className = 'form-feedback success';
+        feedbackEl.innerHTML = '✓ <strong>Solicitação registrada com sucesso!</strong> Redirecionando para o WhatsApp oficial da SS Agro em instantes...';
+      }
+
+      contactForm.reset();
+
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Enviar Solicitação de Demonstração</span><span class="btn__icon" aria-hidden="true">→</span>';
+        }
+      }, 1200);
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   * 15. BANNER DE CONSENTIMENTO DE COOKIES (LGPD - LEI Nº 13.709/2018)
+   * -------------------------------------------------------------------------- */
+  const cookieBanner = document.getElementById('cookieBanner');
+  const cookieAcceptBtn = document.getElementById('cookieAcceptBtn');
+
+  if (cookieBanner && cookieAcceptBtn) {
+    const hasConsent = localStorage.getItem('ssagro_cookie_consent');
+    if (!hasConsent) {
+      setTimeout(() => {
+        cookieBanner.classList.remove('hidden');
+      }, 1500);
+    }
+
+    cookieAcceptBtn.addEventListener('click', () => {
+      localStorage.setItem('ssagro_cookie_consent', 'accepted_' + new Date().toISOString());
+      cookieBanner.classList.add('hidden');
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   * 16. BOTÃO FLUTUANTE DE VOLTAR AO TOPO (SCROLL TO TOP)
+   * -------------------------------------------------------------------------- */
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+  if (scrollTopBtn) {
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (window.scrollY > 380) {
+          scrollTopBtn.classList.add('visible');
+        } else {
+          scrollTopBtn.classList.remove('visible');
+        }
+      },
+      { passive: true }
+    );
+
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  document.querySelectorAll('.scroll-to-top-trigger').forEach((trigger) => {
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 });
