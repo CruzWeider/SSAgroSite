@@ -14,7 +14,7 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=20" />
   <style>
     /* ========================================================================
        ESTILOS DO PAINEL GERENCIAL DO BLOG SS AGRO (admin.html)
@@ -473,7 +473,8 @@
 
     /* Tabela Gerencial de Notícias */
     .posts-table-wrap {
-      overflow-x: auto;
+      overflow-x: hidden;
+      width: 100%;
     }
 
     .posts-table {
@@ -483,21 +484,22 @@
     }
 
     .posts-table th {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--ss-cyan);
-      padding: 14px 16px;
+      padding: 12px 10px;
       border-bottom: 1px solid rgba(93, 224, 230, 0.24);
       background: rgba(9, 25, 40, 0.6);
+      white-space: nowrap;
     }
 
     .posts-table td {
-      padding: 16px;
+      padding: 12px 10px;
       border-bottom: 1px solid rgba(93, 224, 230, 0.12);
       vertical-align: middle;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
     }
 
     .posts-table tr:hover td {
@@ -507,13 +509,13 @@
     .post-cell-main {
       display: flex;
       align-items: center;
-      gap: 14px;
-      max-width: 440px;
+      gap: 10px;
+      min-width: 0;
     }
 
     .post-thumb {
-      width: 72px;
-      height: 50px;
+      width: 60px;
+      height: 42px;
       border-radius: 8px;
       object-fit: cover;
       border: 1px solid rgba(93, 224, 230, 0.35);
@@ -629,6 +631,82 @@
       border-color: #f87171;
       color: #f87171;
       background: rgba(239, 68, 68, 0.12);
+    }
+
+    .icon-btn--warning {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fde047;
+    }
+
+    .icon-btn--warning:hover {
+      border-color: #f59e0b;
+      color: #fff;
+      background: rgba(245, 158, 11, 0.2);
+    }
+
+    /* Estilos de Destaque (Estrela) */
+    .star-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.35);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .star-btn:hover {
+      border-color: #f59e0b;
+      color: #fde047;
+      transform: scale(1.15);
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    .star-btn.is-featured {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.35));
+      border-color: #f59e0b;
+      color: #fbbf24;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .badge-featured {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.25));
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-left: 6px;
+    }
+
+    .read-time-pill {
+      font-size: 0.74rem;
+      color: var(--ss-cyan);
+      background: rgba(93, 224, 230, 0.12);
+      border: 1px solid rgba(93, 224, 230, 0.3);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    #postCategoryInput::-webkit-calendar-picker-indicator {
+      display: none !important;
+      -webkit-appearance: none !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     /* Modal de Criar / Editar Notícia */
@@ -763,6 +841,63 @@
       }
     }
 
+    /* Tela de Login Fullscreen Glassmorphism */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      background: rgba(5, 14, 24, 0.96);
+      backdrop-filter: blur(24px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .auth-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(160deg, rgba(21, 53, 82, 0.95) 0%, rgba(9, 25, 40, 0.98) 100%);
+      border: 1px solid rgba(93, 224, 230, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), 0 0 30px rgba(93, 224, 230, 0.15);
+      text-align: center;
+    }
+
+    .auth-logo {
+      height: 52px;
+      width: auto;
+      margin-bottom: 16px;
+    }
+
+    .auth-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--ss-white);
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      font-size: 0.84rem;
+      color: var(--ss-cyan);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
     @media (max-width: 720px) {
       .kpi-grid,
       .form-grid {
@@ -772,6 +907,56 @@
   </style>
 </head>
 <body>
+  <!-- ========================================================================
+       TELA DE LOGIN E AUTENTICAÇÃO DO ADMINISTRADOR (ACESSO RESTRITO)
+       ======================================================================== -->
+  <div class="auth-overlay" id="adminAuthOverlay" aria-modal="true" role="dialog">
+    <div class="auth-card">
+      <div class="auth-card__brand">
+        <img src="assets/logo-ssagro.png" alt="SS Agro" class="auth-logo" />
+        <h1 class="auth-title">Acesso Restrito</h1>
+        <p class="auth-subtitle">Painel Gerencial do Blog & Gestão de Notícias</p>
+      </div>
+
+      <form id="adminLoginForm" class="auth-form">
+        <div class="form-group" style="text-align: left; margin-bottom: 0;">
+          <label for="adminPasswordInput" style="color: var(--ss-cyan); font-size: 0.86rem; font-weight: 600;">
+            Senha de Administrador
+          </label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              id="adminPasswordInput"
+              class="admin-input"
+              required
+              placeholder="Digite a senha de acesso..."
+              autocomplete="current-password"
+              style="padding-right: 44px; font-size: 0.95rem;"
+            />
+            <button
+              type="button"
+              id="togglePasswordVisibilityBtn"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--ss-gray-muted); cursor: pointer; font-size: 1.1rem; padding: 0;"
+              title="Mostrar ou ocultar senha"
+            >
+              👁️
+            </button>
+          </div>
+          <div id="loginErrorMessage" style="display: none; color: #f87171; font-size: 0.82rem; font-weight: 600; margin-top: 8px;"></div>
+        </div>
+
+        <button type="submit" class="btn btn--primary" style="width: 100%; justify-content: center; padding: 12px; margin-top: 8px;">
+          <span>Entrar no Painel →</span>
+        </button>
+
+        <div style="margin-top: 18px; text-align: center;">
+          <a href="index.html" style="color: var(--ss-gray-muted); font-size: 0.82rem; text-decoration: none;">
+            ← Voltar para o site da SS Agro
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
   <!-- Luzes decorativas de fundo com as cores oficiais -->
   <div class="ambient-bg" aria-hidden="true">
     <div class="ambient-orb ambient-orb--cyan"></div>
@@ -791,11 +976,17 @@
       </a>
 
       <div class="admin-header__actions">
-        <a href="index.html#blog" class="btn btn--outline btn--sm">
+        <a href="index.html#blog" class="btn btn--outline btn--sm" target="_blank">
           <span>🌐 Ver Blog no Site</span>
         </a>
         <button type="button" class="btn btn--primary btn--sm" id="openNewPostModalBtn">
           <span>+ Nova Notícia</span>
+        </button>
+        <button type="button" class="icon-btn" id="changePasswordBtn" title="Alterar a senha de administrador do painel">
+          <span>🔑 Alterar Senha</span>
+        </button>
+        <button type="button" class="icon-btn icon-btn--danger" id="logoutBtn" title="Sair do painel de administração">
+          <span>🔒 Sair</span>
         </button>
       </div>
     </div>
@@ -929,6 +1120,9 @@
           </div>
 
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="icon-btn icon-btn--warning" id="resetViewsBtn" title="Zerar contadores de leitura de todas as notícias para iniciar medição real">
+              <span>🧹 Zerar Métricas de Teste</span>
+            </button>
             <button type="button" class="icon-btn" id="exportCsvBtn" title="Baixar planilha CSV com estatísticas de leitura">
               <span>📥 Exportar Relatório CSV</span>
             </button>
@@ -983,6 +1177,16 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Rodapé do Card com Atalho para Subir ao Topo -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(93, 224, 230, 0.15); flex-wrap: wrap; gap: 12px;">
+          <span style="font-size: 0.82rem; color: var(--ss-gray-muted);">
+            SS Agro Sistemas de Gestão • Painel Gerencial do Blog
+          </span>
+          <button type="button" class="icon-btn" id="footerScrollTopBtn" title="Rolar a tela de volta ao topo">
+            <span>↑ Voltar ao Topo da Página</span>
+          </button>
+        </div>
       </div>
     </div>
   </main>
@@ -994,7 +1198,18 @@
     <div class="modal-card" role="dialog" aria-labelledby="modalTitle">
       <div class="modal-card__header">
         <h3 class="modal-card__title" id="modalTitle">Nova Notícia do Blog SS Agro</h3>
-        <button type="button" class="icon-btn" id="closeModalBtn">✕ Fechar</button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button
+            type="button"
+            class="icon-btn"
+            id="previewModalTopBtn"
+            title="Abrir uma visualização de teste em nova aba para ver como a matéria fica antes de publicar"
+            style="color: var(--ss-cyan); border-color: rgba(93, 224, 230, 0.5);"
+          >
+            <span>👁️ Ver Notícia Pronta (Teste)</span>
+          </button>
+          <button type="button" class="icon-btn" id="closeModalBtn">✕ Fechar</button>
+        </div>
       </div>
 
       <form id="postForm">
@@ -1029,17 +1244,9 @@
               type="text"
               id="postCategoryInput"
               class="admin-input"
-              list="categorySuggestions"
               required
-              placeholder="Ex: Clima e Plantio"
+              placeholder="Digite a categoria (ex: Impostos, Clima, Mercado...)"
             />
-            <datalist id="categorySuggestions">
-              <option value="Clima e Plantio"></option>
-              <option value="Análises de Mercado"></option>
-              <option value="Inovações Tecnológicas"></option>
-              <option value="Mercado & Barter"></option>
-              <option value="Gestão ERP Agro"></option>
-            </datalist>
           </div>
 
           <div class="form-group" style="margin-bottom: 0;">
@@ -1053,14 +1260,25 @@
           </div>
         </div>
 
-        <div class="form-grid">
+        <input type="hidden" id="postReadTimeInput" />
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
           <div class="form-group" style="margin-bottom: 0;">
             <label for="postDateInput">Data de Publicação</label>
             <input type="date" id="postDateInput" class="admin-input" />
           </div>
 
           <div class="form-group" style="margin-bottom: 0;">
-            <label for="postViewsInput">Total de Leituras (Contador)</label>
+            <label for="postEditionInput">Edição do Acervo</label>
+            <select id="postEditionInput" class="admin-input">
+              <option value="SSAGRO 2026 - Parte 2">🌾 SSAGRO 2026 - Parte 2 (Safra Atual)</option>
+              <option value="SSAGRO 2026 - Parte 1">🌱 SSAGRO 2026 - Parte 1</option>
+              <option value="SSAGRO 2025">📚 SSAGRO 2025 (Arquivo Histórico)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="postViewsInput">Total de Leituras</label>
             <input type="number" id="postViewsInput" class="admin-input" min="0" value="0" />
           </div>
         </div>
@@ -1126,15 +1344,34 @@
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 24px;">
-          <label class="status-toggle">
-            <input type="checkbox" id="postPublishedCheckbox" checked />
-            <span class="status-toggle__slider"></span>
-            <span class="status-toggle__label" style="color: var(--ss-cream);">
-              Publicar e exibir esta notícia no site principal
-            </span>
-          </label>
+          <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+            <label class="status-toggle">
+              <input type="checkbox" id="postPublishedCheckbox" checked />
+              <span class="status-toggle__slider"></span>
+              <span class="status-toggle__label" style="color: var(--ss-cream);">
+                Visível no site principal
+              </span>
+            </label>
 
-          <div style="display: flex; gap: 12px;">
+            <label class="status-toggle" title="Destaca esta notícia como matéria principal no topo da Home">
+              <input type="checkbox" id="postFeaturedCheckbox" />
+              <span class="status-toggle__slider" style="background: rgba(245, 158, 11, 0.35);"></span>
+              <span class="status-toggle__label" style="color: #fde047; font-weight: 700;">
+                ⭐ Destaque Principal da Home
+              </span>
+            </label>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button
+              type="button"
+              class="btn btn--outline btn--sm"
+              id="previewModalBtn"
+              title="Abrir uma visualização de teste em nova aba para ver como a matéria fica antes de publicar"
+              style="border-color: var(--ss-cyan); color: var(--ss-cyan);"
+            >
+              <span>👁️ Ver Notícia Pronta (Teste)</span>
+            </button>
             <button type="button" class="btn btn--outline btn--sm" id="cancelModalBtn">
               Cancelar
             </button>
@@ -1147,10 +1384,94 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       MODAL PARA ALTERAR A SENHA DE ADMINISTRADOR
+       ======================================================================== -->
+  <div class="modal-backdrop" id="changePasswordModal" aria-hidden="true">
+    <div class="modal-card" style="max-width: 440px;" role="dialog" aria-labelledby="changePasswordTitle">
+      <div class="modal-card__header">
+        <h3 class="modal-card__title" id="changePasswordTitle" style="font-size: 1.25rem;">🔑 Alterar Senha do Painel</h3>
+        <button type="button" class="icon-btn" id="closeChangePasswordBtn">✕ Fechar</button>
+      </div>
+
+      <form id="changePasswordForm">
+        <div class="form-group">
+          <label for="currentPasswordInput">Senha Atual *</label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              id="currentPasswordInput"
+              class="admin-input"
+              required
+              placeholder="Digite a senha atual..."
+              autocomplete="current-password"
+              style="padding-right: 44px;"
+            />
+            <button
+              type="button"
+              id="toggleCurrentPasswordVisibilityBtn"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--ss-gray-muted); cursor: pointer; font-size: 1.1rem; padding: 0;"
+              title="Mostrar ou ocultar senha atual"
+            >
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="newPasswordInput">Nova Senha *</label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              id="newPasswordInput"
+              class="admin-input"
+              required
+              placeholder="Mínimo 4 caracteres..."
+              minlength="4"
+              autocomplete="new-password"
+              style="padding-right: 44px;"
+            />
+            <button
+              type="button"
+              id="toggleNewPasswordVisibilityBtn"
+              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--ss-gray-muted); cursor: pointer; font-size: 1.1rem; padding: 0;"
+              title="Mostrar ou ocultar nova senha"
+            >
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <div id="changePasswordError" style="display: none; color: #f87171; font-size: 0.82rem; font-weight: 600; margin-bottom: 12px;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+          <button type="button" class="btn btn--outline btn--sm" id="cancelChangePasswordBtn">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn--primary btn--sm">
+            <span>💾 Salvar Nova Senha</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Notificação Flutuante (Toast) -->
   <div class="toast-notification" id="adminToast">Alterações salvas com sucesso!</div>
 
-  <script src="blog-data.js?v=8"></script>
-  <script src="admin.js?v=8"></script>
+  <!-- Botão Flutuante de Voltar ao Topo no Painel -->
+  <button
+    type="button"
+    class="scroll-top-btn"
+    id="adminScrollTopBtn"
+    style="bottom: 28px; right: 28px;"
+    aria-label="Voltar ao topo da página"
+    title="Subir ao topo da página"
+  >
+    <span aria-hidden="true">↑</span>
+  </button>
+
+  <script src="blog-data.js?v=30"></script>
+  <script src="admin.js?v=30"></script>
 </body>
 </html>

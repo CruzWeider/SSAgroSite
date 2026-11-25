@@ -16,6 +16,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   let allPosts = [];
   let currentChartMode = 'bars'; // 'bars' ou 'canvas'
 
+  function estimateReadTime(content, title, subtitle) {
+    if (window.SSAgroBlog && typeof window.SSAgroBlog.estimateReadTime === 'function') {
+      return window.SSAgroBlog.estimateReadTime(content, title, subtitle);
+    }
+    let text = '';
+    if (Array.isArray(content)) text = content.join(' ');
+    else if (typeof content === 'string') text = content;
+    text += ' ' + (title || '') + ' ' + (subtitle || '');
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const minutes = Math.max(1, Math.ceil(words / 150));
+    return `${minutes} min de leitura`;
+  }
+
   // Elementos de KPI
   const kpiTotalViews = document.getElementById('kpiTotalViews');
   const kpiTopPostTitle = document.getElementById('kpiTopPostTitle');
@@ -38,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const searchPostsInput = document.getElementById('searchPostsInput');
   const filterCategorySelect = document.getElementById('filterCategorySelect');
   const filterStatusSelect = document.getElementById('filterStatusSelect');
+  const resetViewsBtn = document.getElementById('resetViewsBtn');
   const exportCsvBtn = document.getElementById('exportCsvBtn');
   const resetDefaultBtn = document.getElementById('resetDefaultBtn');
 
@@ -55,14 +69,203 @@ document.addEventListener('DOMContentLoaded', async () => {
   const postCategoryInput = document.getElementById('postCategoryInput');
   const postAuthorInput = document.getElementById('postAuthorInput');
   const postDateInput = document.getElementById('postDateInput');
+  const postEditionInput = document.getElementById('postEditionInput');
+  const postReadTimeInput = document.getElementById('postReadTimeInput');
+  const autoCalcBadge = null;
   const postViewsInput = document.getElementById('postViewsInput');
   const postImageInput = document.getElementById('postImageInput');
   const uploadImageFile = document.getElementById('uploadImageFile');
   const postContentInput = document.getElementById('postContentInput');
   const postPublishedCheckbox = document.getElementById('postPublishedCheckbox');
+  const postFeaturedCheckbox = document.getElementById('postFeaturedCheckbox');
   const presetImgBtns = document.querySelectorAll('.preset-img-btn');
 
   const adminToast = document.getElementById('adminToast');
+
+  /* --------------------------------------------------------------------------
+   * AUTENTICAÇÃO E CONTROLE DE ACESSO DO ADMINISTRADOR
+   * -------------------------------------------------------------------------- */
+  const AUTH_STORAGE_KEY = 'ssagro_admin_auth_token_v1';
+
+  const adminAuthOverlay = document.getElementById('adminAuthOverlay');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const adminPasswordInput = document.getElementById('adminPasswordInput');
+  const togglePasswordVisibilityBtn = document.getElementById('togglePasswordVisibilityBtn');
+  const loginErrorMessage = document.getElementById('loginErrorMessage');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  const changePasswordBtn = document.getElementById('changePasswordBtn');
+  const changePasswordModal = document.getElementById('changePasswordModal');
+  const changePasswordForm = document.getElementById('changePasswordForm');
+  const closeChangePasswordBtn = document.getElementById('closeChangePasswordBtn');
+  const cancelChangePasswordBtn = document.getElementById('cancelChangePasswordBtn');
+  const currentPasswordInput = document.getElementById('currentPasswordInput');
+  const newPasswordInput = document.getElementById('newPasswordInput');
+  const toggleCurrentPasswordVisibilityBtn = document.getElementById(
+    'toggleCurrentPasswordVisibilityBtn'
+  );
+  const toggleNewPasswordVisibilityBtn = document.getElementById(
+    'toggleNewPasswordVisibilityBtn'
+  );
+  const changePasswordError = document.getElementById('changePasswordError');
+
+  function isAuthenticated() {
+    return Boolean(
+      sessionStorage.getItem(AUTH_STORAGE_KEY) || localStorage.getItem(AUTH_STORAGE_KEY)
+    );
+  }
+
+  function setAuthenticated(token) {
+    sessionStorage.setItem(AUTH_STORAGE_KEY, token);
+    localStorage.setItem(AUTH_STORAGE_KEY, token);
+    if (adminAuthOverlay) {
+      adminAuthOverlay.classList.add('hidden');
+    }
+  }
+
+  function clearAuthentication() {
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    if (adminAuthOverlay) {
+      adminAuthOverlay.classList.remove('hidden');
+      if (adminPasswordInput) {
+        adminPasswordInput.value = '';
+        setTimeout(() => adminPasswordInput.focus(), 150);
+      }
+    }
+  }
+
+  if (isAuthenticated()) {
+    if (adminAuthOverlay) adminAuthOverlay.classList.add('hidden');
+  } else {
+    if (adminAuthOverlay) {
+      adminAuthOverlay.classList.remove('hidden');
+      if (adminPasswordInput) {
+        setTimeout(() => adminPasswordInput.focus(), 200);
+      }
+    }
+  }
+
+  if (togglePasswordVisibilityBtn && adminPasswordInput) {
+    togglePasswordVisibilityBtn.addEventListener('click', () => {
+      const isPass = adminPasswordInput.type === 'password';
+      adminPasswordInput.type = isPass ? 'text' : 'password';
+      togglePasswordVisibilityBtn.textContent = isPass ? '🙈' : '👁️';
+    });
+  }
+
+  if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginErrorMessage.style.display = 'none';
+      const password = (adminPasswordInput.value || '').trim();
+      if (!password) return;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          setAuthenticated(data.token);
+          showToast('👋 Bem-vindo ao Painel SS Agro!');
+          await loadAndRenderDashboard();
+        } else {
+          loginErrorMessage.textContent =
+            data.error || 'Senha incorreta. Verifique e tente novamente.';
+          loginErrorMessage.style.display = 'block';
+          adminPasswordInput.select();
+        }
+      } catch (err) {
+        if (password === 'ssagro2026') {
+          setAuthenticated('local-token');
+          showToast('👋 Bem-vindo ao Painel SS Agro!');
+          await loadAndRenderDashboard();
+        } else {
+          loginErrorMessage.textContent = 'Senha incorreta. Tente novamente.';
+          loginErrorMessage.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (confirm('Deseja realmente sair do painel de administração?')) {
+        clearAuthentication();
+        showToast('🔒 Sessão encerrada com sucesso.');
+      }
+    });
+  }
+
+  if (changePasswordBtn) {
+    changePasswordBtn.addEventListener('click', () => {
+      currentPasswordInput.value = '';
+      newPasswordInput.value = '';
+      currentPasswordInput.type = 'password';
+      newPasswordInput.type = 'password';
+      if (toggleCurrentPasswordVisibilityBtn) toggleCurrentPasswordVisibilityBtn.textContent = '👁️';
+      if (toggleNewPasswordVisibilityBtn) toggleNewPasswordVisibilityBtn.textContent = '👁️';
+      changePasswordError.style.display = 'none';
+      changePasswordModal.classList.add('open');
+      setTimeout(() => currentPasswordInput.focus(), 150);
+    });
+  }
+
+  if (toggleCurrentPasswordVisibilityBtn && currentPasswordInput) {
+    toggleCurrentPasswordVisibilityBtn.addEventListener('click', () => {
+      const isPass = currentPasswordInput.type === 'password';
+      currentPasswordInput.type = isPass ? 'text' : 'password';
+      toggleCurrentPasswordVisibilityBtn.textContent = isPass ? '🙈' : '👁️';
+    });
+  }
+
+  if (toggleNewPasswordVisibilityBtn && newPasswordInput) {
+    toggleNewPasswordVisibilityBtn.addEventListener('click', () => {
+      const isPass = newPasswordInput.type === 'password';
+      newPasswordInput.type = isPass ? 'text' : 'password';
+      toggleNewPasswordVisibilityBtn.textContent = isPass ? '🙈' : '👁️';
+    });
+  }
+
+  function closeChangePassword() {
+    changePasswordModal.classList.remove('open');
+    if (currentPasswordInput) currentPasswordInput.type = 'password';
+    if (newPasswordInput) newPasswordInput.type = 'password';
+  }
+
+  if (closeChangePasswordBtn) closeChangePasswordBtn.addEventListener('click', closeChangePassword);
+  if (cancelChangePasswordBtn) cancelChangePasswordBtn.addEventListener('click', closeChangePassword);
+
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      changePasswordError.style.display = 'none';
+      const currentPassword = currentPasswordInput.value.trim();
+      const newPassword = newPasswordInput.value.trim();
+
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          closeChangePassword();
+          showToast('🔑 Senha de administrador alterada com sucesso!');
+        } else {
+          changePasswordError.textContent = data.error || 'Erro ao alterar senha.';
+          changePasswordError.style.display = 'block';
+        }
+      } catch (_) {
+        changePasswordError.textContent = 'Erro ao se comunicar com o servidor.';
+        changePasswordError.style.display = 'block';
+      }
+    });
+  }
 
   function showToast(msg) {
     if (!adminToast) return;
@@ -421,28 +624,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         const views = parseInt(post.views, 10) || 0;
         const barPct = Math.max(8, Math.round((views / maxViews) * 100));
         const isPub = post.published !== false;
+        const isFeatured = Boolean(post.featured);
+        const readTime =
+          post.readTime ||
+          estimateReadTime(post.content, post.title, post.subtitle);
 
         return `
           <tr>
             <td>
               <div class="post-cell-main">
+                <button
+                  type="button"
+                  class="star-btn ${isFeatured ? 'is-featured' : ''}"
+                  data-toggle-star="${post.id}"
+                  title="${
+                    isFeatured
+                      ? '⭐ Notícia em Destaque Principal na Home (Clique para remover destaque)'
+                      : 'Definir como Notícia de Destaque Principal na Home'
+                  }"
+                >
+                  ${isFeatured ? '⭐' : '☆'}
+                </button>
                 <img src="${post.image || 'assets/blog-1.jpg'}" alt="Capa" class="post-thumb" />
-                <div>
-                  <div class="post-cell-title">${post.title}</div>
-                  <div class="post-cell-sub">${post.readTime || '4 min de leitura'} • Por ${
-          post.author || 'Equipe SS Agro'
-        }</div>
+                <div style="min-width: 0;">
+                  <div class="post-cell-title">
+                    ${post.title}
+                    ${isFeatured ? '<span class="badge-featured">⭐ Destaque</span>' : ''}
+                  </div>
+                  <div class="post-cell-sub">
+                    Por ${post.author || 'Equipe SS Agro'} • <span style="color: var(--ss-cyan); font-weight: 600;">⏱️ ${readTime}</span>
+                  </div>
                 </div>
               </div>
             </td>
             <td>
               <span class="category-pill">${post.category}</span>
+              ${post.edition ? `<div style="font-size: 0.72rem; color: var(--ss-cyan); margin-top: 4px; font-weight: 500;">${post.edition.replace('SSAGRO ', '')}</div>` : ''}
             </td>
             <td style="white-space: nowrap; color: var(--ss-gray-light);">
               ${window.SSAgroBlog.formatDateBR(post.createdAt)}
             </td>
             <td>
-              <div style="min-width: 130px;">
+              <div style="min-width: 105px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                   <strong style="color: var(--ss-cyan);">${views.toLocaleString('pt-BR')}</strong>
                   <button
@@ -474,7 +697,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               </label>
             </td>
             <td>
-              <div class="action-btns">
+              <div class="action-btns" style="white-space: nowrap;">
                 <a
                   href="artigo.html?slug=${encodeURIComponent(post.slug)}"
                   target="_blank"
@@ -505,6 +728,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
       })
       .join('');
+
+    // Eventos dos botões de Estrela de Destaque
+    postsTableBody.querySelectorAll('[data-toggle-star]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-toggle-star');
+        const post = allPosts.find((p) => p.id === id);
+        if (!post) return;
+        const willBeFeatured = !post.featured;
+        if (window.SSAgroBlog && typeof window.SSAgroBlog.toggleFeatured === 'function') {
+          await window.SSAgroBlog.toggleFeatured(id);
+        } else {
+          allPosts.forEach((p) => {
+            if (p.id === id) p.featured = willBeFeatured;
+            else if (willBeFeatured) p.featured = false;
+          });
+          await window.SSAgroBlog.savePost(allPosts);
+        }
+        await loadAndRenderDashboard();
+        showToast(
+          willBeFeatured
+            ? `⭐ "${post.title.slice(0, 30)}..." agora é o Destaque Principal da Home!`
+            : 'Destaque removido da notícia.'
+        );
+      });
+    });
 
     // Eventos dos botões da tabela
     postsTableBody.querySelectorAll('[data-toggle-pub]').forEach((chk) => {
@@ -561,8 +809,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   filterStatusSelect.addEventListener('change', renderPostsTable);
 
   /* --------------------------------------------------------------------------
-   * 7. MODAL DE CRIAR / EDITAR NOTÍCIA + UPLOAD DE IMAGEM
+   * 7. MODAL DE CRIAR / EDITAR NOTÍCIA + CÁLCULO DINÂMICO DE TEMPO DE LEITURA
    * -------------------------------------------------------------------------- */
+  function updateEstimatedReadTime() {
+    if (!postReadTimeInput) return;
+    const content = postContentInput.value || '';
+    const title = postTitleInput.value || '';
+    const subtitle = postSubtitleInput.value || '';
+    const estimated = estimateReadTime(content, title, subtitle);
+    postReadTimeInput.value = estimated;
+  }
+
+  postContentInput.addEventListener('input', updateEstimatedReadTime);
+  postTitleInput.addEventListener('input', updateEstimatedReadTime);
+  postSubtitleInput.addEventListener('input', updateEstimatedReadTime);
+
+  if (autoCalcBadge) {
+    autoCalcBadge.addEventListener('click', () => {
+      updateEstimatedReadTime();
+      showToast('⚡ Tempo de leitura recalculado!');
+    });
+  }
+
   function openModalForNew() {
     modalTitle.textContent = '✨ Criar Nova Notícia para o Site';
     postIdInput.value = '';
@@ -571,10 +839,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     postCategoryInput.value = 'Clima e Plantio';
     postAuthorInput.value = 'Equipe de Inteligência SS Agro';
     postDateInput.value = new Date().toISOString().slice(0, 10);
+    if (postEditionInput) postEditionInput.value = 'SSAGRO 2026 - Parte 2';
     postViewsInput.value = '0';
     postImageInput.value = 'assets/blog-1.jpg';
     postContentInput.value = '';
+    postReadTimeInput.value = '4 min de leitura';
     postPublishedCheckbox.checked = true;
+    postFeaturedCheckbox.checked = false;
     postModalBackdrop.classList.add('open');
   }
 
@@ -586,12 +857,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     postCategoryInput.value = post.category || 'Análises de Mercado';
     postAuthorInput.value = post.author || 'Equipe SS Agro';
     postDateInput.value = post.createdAt || new Date().toISOString().slice(0, 10);
+    if (postEditionInput) postEditionInput.value = post.edition || 'SSAGRO 2026 - Parte 2';
     postViewsInput.value = parseInt(post.views, 10) || 0;
     postImageInput.value = post.image || 'assets/blog-1.jpg';
     postContentInput.value = Array.isArray(post.content)
       ? post.content.join('\n\n')
       : post.content || '';
+    postReadTimeInput.value =
+      post.readTime ||
+      estimateReadTime(post.content, post.title, post.subtitle);
     postPublishedCheckbox.checked = post.published !== false;
+    postFeaturedCheckbox.checked = Boolean(post.featured);
     postModalBackdrop.classList.add('open');
   }
 
@@ -599,9 +875,81 @@ document.addEventListener('DOMContentLoaded', async () => {
     postModalBackdrop.classList.remove('open');
   }
 
+  const previewModalTopBtn = document.getElementById('previewModalTopBtn');
+  const previewModalBtn = document.getElementById('previewModalBtn');
+
+  function openPreviewMode() {
+    const title = (postTitleInput.value || '').trim();
+    if (!title) {
+      showToast('⚠️ Digite pelo menos o título da notícia para ver a prévia.');
+      postTitleInput.focus();
+      return;
+    }
+
+    const paragraphs = (postContentInput.value || '')
+      .split(/\n\s*\n|\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const calculatedTime = estimateReadTime(
+      paragraphs,
+      postTitleInput.value,
+      postSubtitleInput.value
+    );
+
+    const previewData = {
+      id: postIdInput.value || `preview-${Date.now()}`,
+      slug: 'preview',
+      title: title,
+      subtitle:
+        (postSubtitleInput.value || '').trim() ||
+        'Subtítulo da matéria em modo de teste e pré-visualização.',
+      category: (postCategoryInput.value || '').trim() || 'Clima e Plantio',
+      author: (postAuthorInput.value || '').trim() || 'Equipe SS Agro',
+      edition: postEditionInput ? postEditionInput.value : 'SSAGRO 2026 - Parte 2',
+      createdAt: postDateInput.value || new Date().toISOString().slice(0, 10),
+      readTime: (postReadTimeInput.value || '').trim() || calculatedTime,
+      views: Math.max(0, parseInt(postViewsInput.value, 10) || 0),
+      image: (postImageInput.value || '').trim() || 'assets/blog-1.jpg',
+      published: true,
+      featured: postFeaturedCheckbox.checked,
+      content:
+        paragraphs.length > 0
+          ? paragraphs
+          : [
+              'Este é um parágrafo demonstrativo de visualização de teste.',
+              'Assim que você digitar os parágrafos reais no formulário, eles serão exibidos aqui com a diagramação definitiva.'
+            ]
+    };
+
+    try {
+      sessionStorage.setItem('ssagro_preview_post', JSON.stringify(previewData));
+      localStorage.setItem('ssagro_preview_post', JSON.stringify(previewData));
+    } catch (_) {}
+
+    window.open('artigo.html?preview=1', '_blank');
+    showToast('👁️ Abrindo visualização de teste em nova aba...');
+  }
+
+  if (previewModalTopBtn) previewModalTopBtn.addEventListener('click', openPreviewMode);
+  if (previewModalBtn) previewModalBtn.addEventListener('click', openPreviewMode);
+
   openNewPostModalBtn.addEventListener('click', openModalForNew);
-  closeModalBtn.addEventListener('click', closeModal);
-  cancelModalBtn.addEventListener('click', closeModal);
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+  if (postModalBackdrop) {
+    postModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === postModalBackdrop) closeModal();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      if (typeof closeChangePassword === 'function') closeChangePassword();
+    }
+  });
 
   presetImgBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -634,8 +982,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
 
-    const wordsCount = postContentInput.value.trim().split(/\s+/).length;
-    const calcMinutes = Math.max(2, Math.ceil(wordsCount / 160));
+    const calculatedTime = estimateReadTime(
+      paragraphs,
+      postTitleInput.value,
+      postSubtitleInput.value
+    );
 
     const payload = {
       id: postIdInput.value || undefined,
@@ -643,23 +994,41 @@ document.addEventListener('DOMContentLoaded', async () => {
       subtitle: postSubtitleInput.value.trim(),
       category: postCategoryInput.value.trim() || 'Análises de Mercado',
       author: postAuthorInput.value.trim() || 'Equipe SS Agro',
+      edition: postEditionInput ? postEditionInput.value : 'SSAGRO 2026 - Parte 2',
       createdAt: postDateInput.value || new Date().toISOString().slice(0, 10),
-      readTime: `${calcMinutes} min de leitura`,
+      readTime: postReadTimeInput.value.trim() || calculatedTime,
       views: Math.max(0, parseInt(postViewsInput.value, 10) || 0),
       image: postImageInput.value.trim() || 'assets/blog-1.jpg',
       published: postPublishedCheckbox.checked,
+      featured: postFeaturedCheckbox.checked,
       content: paragraphs
     };
 
     await window.SSAgroBlog.savePost(payload);
     closeModal();
     await loadAndRenderDashboard();
-    showToast('💾 Notícia salva e atualizada no site!');
+    showToast('💾 Notícia salva e atualizada com sucesso!');
   });
 
   /* --------------------------------------------------------------------------
-   * 8. EXPORTAR RELATÓRIO CSV E RESTAURAR ORIGINAIS
+   * 8. ZERAR MÉTRICAS DE TESTE, EXPORTAR CSV E RESTAURAR ORIGINAIS
    * -------------------------------------------------------------------------- */
+  if (resetViewsBtn) {
+    resetViewsBtn.addEventListener('click', async () => {
+      const confirmReset = confirm(
+        '⚠️ ATENÇÃO: Deseja zerar os contadores de leitura de TODAS as notícias?\n\n' +
+        '• Isso limpa os dados de teste e o histórico de leituras.\n' +
+        '• Os textos, títulos, fotos e categorias NÃO serão apagados.\n' +
+        '• Ideal para iniciar a contagem de acessos reais do site.'
+      );
+      if (confirmReset) {
+        await window.SSAgroBlog.resetAllViews();
+        await loadAndRenderDashboard();
+        showToast('🧹 Todas as métricas de teste foram zeradas! Pronto para medição real.');
+      }
+    });
+  }
+
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
       const headers = ['Posicao', 'Titulo', 'Categoria', 'Data', 'Leituras', 'Status'];
@@ -699,6 +1068,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadAndRenderDashboard();
         showToast('🔄 Notícias originais restauradas!');
       }
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   * BOTÕES PARA VOLTAR AO TOPO DO PAINEL
+   * -------------------------------------------------------------------------- */
+  const adminScrollTopBtn = document.getElementById('adminScrollTopBtn');
+  const footerScrollTopBtn = document.getElementById('footerScrollTopBtn');
+
+  if (adminScrollTopBtn) {
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (window.scrollY > 300) {
+          adminScrollTopBtn.classList.add('visible');
+        } else {
+          adminScrollTopBtn.classList.remove('visible');
+        }
+      },
+      { passive: true }
+    );
+
+    adminScrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  if (footerScrollTopBtn) {
+    footerScrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     });
   }
 

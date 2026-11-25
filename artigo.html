@@ -18,7 +18,7 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=20" />
   <style>
     /* ========================================================================
        ESTILOS ESPECÍFICOS DA TELA DE LEITURA DO ARTIGO (artigo.html)
@@ -349,6 +349,9 @@
           <span class="article-meta-item">
             ⏱️ <span id="articleReadTime">4 min de leitura</span>
           </span>
+          <span class="article-meta-item" id="articleSourceWrapper" style="display: none;">
+            📰 <span id="articleSource"></span>
+          </span>
           <span class="article-meta-item" title="Total de leituras contabilizadas no Painel Gerencial">
             👁️ <strong id="articleViews">0</strong> leituras
           </span>
@@ -477,10 +480,26 @@
 
       <div class="footer__bottom">
         <span>Copyright © 2021 - 2026 SS-Agro Sistemas de Gestão. Todos os direitos reservados.</span>
+        <div class="footer__legal">
+          <a href="privacidade.html">Política de Privacidade (LGPD)</a>
+          <span style="color: rgba(93,224,230,0.4);" aria-hidden="true">•</span>
+          <a href="termos.html">Termos de Uso</a>
+        </div>
         <span>Rio Verde - GO • Goiânia - GO</span>
       </div>
     </div>
   </footer>
+
+  <!-- Botão Flutuante de Voltar ao Topo -->
+  <button
+    type="button"
+    class="scroll-top-btn"
+    id="articleScrollTopBtn"
+    aria-label="Voltar ao topo da matéria"
+    title="Subir ao topo"
+  >
+    <span aria-hidden="true">↑</span>
+  </button>
 
   <!-- Botão Flutuante de WhatsApp -->
   <a
@@ -493,11 +512,13 @@
     <span>💬 Falar com Especialista</span>
   </a>
 
-  <script src="blog-data.js?v=8"></script>
+  <script src="blog-data.js?v=20"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Barra de progresso de leitura no topo
+      // 1. Barra de progresso de leitura no topo e Botão Voltar ao Topo
       const scrollProgressBar = document.getElementById('scrollProgressBar');
+      const articleScrollTopBtn = document.getElementById('articleScrollTopBtn');
+
       window.addEventListener(
         'scroll',
         () => {
@@ -507,21 +528,69 @@
           if (scrollProgressBar) {
             scrollProgressBar.style.width = `${pct}%`;
           }
+          if (articleScrollTopBtn) {
+            if (scrollTop > 380) {
+              articleScrollTopBtn.classList.add('visible');
+            } else {
+              articleScrollTopBtn.classList.remove('visible');
+            }
+          }
         },
         { passive: true }
       );
 
-      // 2. Identifica qual notícia abrir pela URL (?slug=... ou ?id=...)
+      if (articleScrollTopBtn) {
+        articleScrollTopBtn.addEventListener('click', () => {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+      }
+
+      // 2. Identifica se é modo de teste/preview ou matéria publicada (?slug=... ou ?id=...)
       const params = new URLSearchParams(window.location.search);
+      const isPreview = params.get('preview') === '1';
       const slugOrId = params.get('slug') || params.get('id');
 
-      // 3. Busca os dados da notícia e registra +1 leitura no sistema
-      let post = await window.SSAgroBlog.getPostByKey(slugOrId);
+      let post = null;
+
+      if (isPreview) {
+        try {
+          const rawPreview =
+            sessionStorage.getItem('ssagro_preview_post') ||
+            localStorage.getItem('ssagro_preview_post');
+          if (rawPreview) {
+            post = JSON.parse(rawPreview);
+          }
+        } catch (_) {}
+      }
+
+      if (!post) {
+        post = await window.SSAgroBlog.getPostByKey(slugOrId);
+      }
+
       if (!post) return;
 
-      const updatedPost = await window.SSAgroBlog.recordView(post.id || post.slug);
-      if (updatedPost) {
-        post = updatedPost;
+      // 3. Registra leitura apenas se for visitante real (não conta em testes/preview)
+      if (!isPreview) {
+        const updatedPost = await window.SSAgroBlog.recordView(post.id || post.slug);
+        if (updatedPost) {
+          post = updatedPost;
+        }
+      } else {
+        // Banner flutuante no topo indicando modo de teste
+        const testBanner = document.createElement('div');
+        testBanner.style.cssText =
+          'position:sticky; top:0; z-index:99999; background:linear-gradient(90deg, #f59e0b, #d97706); color:#fff; padding:12px 20px; font-weight:700; font-size:0.92rem; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 20px rgba(0,0,0,0.5);';
+        testBanner.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.3rem;">👁️</span>
+            <span>MODO PRÉ-VISUALIZAÇÃO DE TESTE: É assim que sua matéria será exibida aos leitores quando for publicada.</span>
+          </div>
+          <button type="button" onclick="window.close()" style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.4); color:#fff; border-radius:6px; padding:6px 14px; cursor:pointer; font-weight:700; font-size:0.84rem;">✕ Fechar Teste</button>
+        `;
+        document.body.prepend(testBanner);
       }
 
       // 4. Preenche a tela com todos os dados da matéria
@@ -540,6 +609,13 @@
       document.getElementById('articleSubtitle').textContent = post.subtitle || '';
       document.getElementById('articleAuthor').textContent =
         post.author || 'Equipe de Inteligência SS Agro';
+
+      const sourceWrapper = document.getElementById('articleSourceWrapper');
+      const sourceEl = document.getElementById('articleSource');
+      if (sourceWrapper && sourceEl && post.source) {
+        sourceEl.textContent = `Fonte: ${post.source}`;
+        sourceWrapper.style.display = 'inline-flex';
+      }
 
       const imgEl = document.getElementById('articleImage');
       imgEl.src = post.image || 'assets/blog-1.jpg';

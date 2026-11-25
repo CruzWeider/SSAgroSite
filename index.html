@@ -130,7 +130,7 @@
   />
 
   <!-- Folha de Estilos Principal -->
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=21" />
 </head>
 <body>
   <!-- Link de Salto para Acessibilidade via Teclado (Skip Navigation) -->
@@ -1603,10 +1603,37 @@
           </p>
         </div>
 
-        <div class="blog-pills reveal">
-          <div class="blog-pill"><span aria-hidden="true">✓</span> Análises de Mercado</div>
-          <div class="blog-pill"><span aria-hidden="true">✓</span> Clima e Plantio</div>
-          <div class="blog-pill"><span aria-hidden="true">✓</span> Inovações Tecnológicas</div>
+        <!-- Barra de Pesquisa e Filtros por Categoria do Blog -->
+        <div class="blog-controls reveal">
+          <!-- Campo de Busca em Tempo Real -->
+          <div class="blog-search-box">
+            <span class="blog-search-icon" aria-hidden="true">🔍</span>
+            <input
+              type="search"
+              id="siteBlogSearchInput"
+              class="blog-search-input"
+              placeholder="Pesquisar notícias do agro (ex: El Niño, fertilizantes, manejo, milho, barter)..."
+              aria-label="Pesquisar notícias do blog"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              id="siteBlogSearchClear"
+              class="blog-search-clear"
+              style="display: none;"
+              title="Limpar pesquisa"
+              aria-label="Limpar pesquisa"
+            >✕</button>
+          </div>
+
+          <!-- Filtros Dinâmicos por Categoria -->
+          <div class="blog-filters-row" id="blogCategoryFilters">
+            <button type="button" class="blog-pill-btn active" data-filter-cat="all">
+              <span>✓ Todas as Categorias</span>
+            </button>
+          </div>
+
+          <div class="blog-results-info" id="blogResultsCount" style="display: none;"></div>
         </div>
 
         <div class="blog-grid" id="blogGrid" aria-live="polite">
@@ -1686,6 +1713,9 @@
             </div>
           </a>
         </div>
+
+        <!-- Botão Dinâmico "Ver Mais Notícias" (Aparece automaticamente apenas quando houver 5 ou mais notícias) -->
+        <div class="blog-load-more-wrap" id="blogLoadMoreWrap" style="display: none;"></div>
       </div>
     </section>
 
@@ -1695,18 +1725,137 @@
     <section class="section section--alt" id="contato" aria-labelledby="title-contato">
       <div class="container">
         <div class="section-header reveal">
-          <span class="section-tag">Fale Conosco &amp; Nossa Estrutura</span>
+          <span class="section-tag">Fale Conosco &amp; Demonstração</span>
           <h2 class="section-title" id="title-contato">
             Pronto para transformar a <span class="text-gradient">gestão do seu agronegócio?</span>
           </h2>
           <p class="section-subtitle">
-            Converse agora com nossos especialistas pelos canais digitais ou visite nossa sala comercial de atendimento ao cliente em Rio Verde - GO.
+            Solicite uma demonstração personalizada preenchendo o formulário abaixo, converse com nossos consultores ou visite nossa sala comercial em Rio Verde - GO.
           </p>
         </div>
 
-        <div class="contact-grid">
+        <!-- Grade Superior: Formulário de Contato / Leads + Canais Diretos -->
+        <div class="contact-top-grid">
+          <!-- Formulário Oficial de Contato & Captação de Leads -->
+          <div class="contact-form-card spotlight-card reveal reveal--left">
+            <div class="contact-form-header">
+              <div class="contact-form-badge">
+                <span class="contact-channels__status-dot" aria-hidden="true"></span>
+                <span>Atendimento &amp; Demonstração Comercial</span>
+              </div>
+              <h3 class="contact-form-title">Deixe seu Contato</h3>
+              <p class="contact-form-subtitle">
+                Preencha os dados abaixo para receber uma apresentação técnica das soluções SS Agro sob medida para sua operação.
+              </p>
+            </div>
+
+            <div id="contactFormFeedback" class="form-feedback" role="alert"></div>
+
+            <form id="contactForm" novalidate>
+              <div class="contact-form-fields">
+                <div class="form-group">
+                  <label for="formNome" class="form-label">Nome Completo <span class="req">*</span></label>
+                  <input
+                    type="text"
+                    id="formNome"
+                    name="nome"
+                    class="form-input"
+                    placeholder="Seu nome completo"
+                    required
+                    autocomplete="name"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="formWhatsapp" class="form-label">WhatsApp / Celular <span class="req">*</span></label>
+                  <input
+                    type="tel"
+                    id="formWhatsapp"
+                    name="whatsapp"
+                    class="form-input"
+                    placeholder="(00) 00000-0000"
+                    required
+                    autocomplete="tel"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="formEmail" class="form-label">E-mail Corporativo <span class="req">*</span></label>
+                  <input
+                    type="email"
+                    id="formEmail"
+                    name="email"
+                    class="form-input"
+                    placeholder="seu.email@empresa.com.br"
+                    required
+                    autocomplete="email"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="formEmpresa" class="form-label">Nome da Empresa / Fazenda <span class="req">*</span></label>
+                  <input
+                    type="text"
+                    id="formEmpresa"
+                    name="empresa"
+                    class="form-input"
+                    placeholder="Razão Social ou Nome Fantasia"
+                    required
+                    autocomplete="organization"
+                  />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="formSegmento" class="form-label">Segmento de Atuação</label>
+                  <select id="formSegmento" name="segmento" class="form-select">
+                    <option value="Distribuidora de Insumos">Distribuidora de Insumos Agrícolas</option>
+                    <option value="Indústria de Insumos">Indústria de Insumos Agrícolas</option>
+                    <option value="Armazém de Grãos / Silos">Armazenagem de Grãos / Silos</option>
+                    <option value="Propriedade Rural / Produtor">Propriedade Rural / Produtor Agrícola</option>
+                    <option value="Revenda e Representação Comercial">Revenda &amp; Representação Comercial</option>
+                    <option value="Outro Segmento do Agro">Outro Segmento do Agronegócio</option>
+                  </select>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="formMensagem" class="form-label">Mensagem ou Necessidade Específica</label>
+                  <textarea
+                    id="formMensagem"
+                    name="mensagem"
+                    class="form-textarea"
+                    rows="3"
+                    placeholder="Conte-nos brevemente sobre os desafios da sua gestão ou o que gostaria de ver na demonstração..."
+                  ></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                  <div class="form-checkbox-wrapper">
+                    <input
+                      type="checkbox"
+                      id="formLgpd"
+                      name="lgpd"
+                      class="form-checkbox"
+                      required
+                      checked
+                    />
+                    <label for="formLgpd" class="form-checkbox-label">
+                      Concordo com a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade (LGPD)</a> e autorizo o contato comercial da equipe SS Agro.
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group full-width" style="margin-top: 8px;">
+                  <button type="submit" id="formSubmitBtn" class="btn btn--primary" style="width: 100%; justify-content: center;">
+                    <span>Enviar Solicitação de Demonstração</span>
+                    <span class="btn__icon" aria-hidden="true">→</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           <!-- Canais Diretos de Atendimento -->
-          <div class="contact-channels spotlight-card reveal reveal--left">
+          <div class="contact-channels spotlight-card reveal reveal--right">
             <div>
               <div class="contact-channels__status">
                 <span class="contact-channels__status-dot" aria-hidden="true"></span>
@@ -1817,9 +1966,11 @@
               </a>
             </div>
           </div>
+        </div>
 
-          <!-- Espaço Comercial & Atendimento ao Cliente (Rio Verde - GO) -->
-          <div class="office-showcase spotlight-card reveal reveal--right">
+        <!-- Grade Inferior: Espaço Comercial & Atendimento ao Cliente (Rio Verde - GO) -->
+        <div style="margin-top: 32px;">
+          <div class="office-showcase spotlight-card reveal">
             <div class="office-showcase__top">
               <div class="office-showcase__badges">
                 <span class="office-badge office-badge--highlight">
@@ -1923,6 +2074,8 @@
         </div>
       </div>
     </section>
+      </div>
+    </section>
   </main>
 
   <!-- ========================================================================
@@ -1947,6 +2100,8 @@
             <li><a href="#solucoes">Soluções ERP</a></li>
             <li><a href="#modulos">16 Módulos</a></li>
             <li><a href="#blog">Blog SS Agro</a></li>
+            <li><a href="privacidade.html">Política de Privacidade (LGPD)</a></li>
+            <li><a href="termos.html">Termos de Uso</a></li>
           </ul>
         </nav>
 
@@ -1973,10 +2128,45 @@
 
       <div class="footer__bottom">
         <span>Copyright © 2021 - 2026 SS-Agro Sistemas de Gestão. Todos os direitos reservados.</span>
+        <div class="footer__legal">
+          <a href="privacidade.html">Política de Privacidade (LGPD)</a>
+          <span style="color: rgba(93, 224, 230, 0.4);">•</span>
+          <a href="termos.html">Termos de Uso</a>
+          <span style="color: rgba(93, 224, 230, 0.4);">•</span>
+          <a href="admin.html" title="Acesso ao Painel Gerencial do Blog">🔒 Painel do Blog</a>
+        </div>
         <span>Rio Verde - GO • Goiânia - GO</span>
       </div>
     </div>
   </footer>
+
+  <!-- ========================================================================
+       BANNER DE CONSENTIMENTO DE COOKIES (LGPD - LEI Nº 13.709/2018)
+       ======================================================================== -->
+  <aside class="cookie-banner hidden" id="cookieBanner" aria-label="Aviso de Privacidade e Cookies">
+    <div class="cookie-banner__inner">
+      <div class="cookie-banner__text">
+        <strong>Aviso de Cookies e Privacidade (LGPD):</strong>
+        Utilizamos cookies essenciais e tecnologias semelhantes para garantir o funcionamento seguro deste portal, analisar métricas de acesso e personalizar sua experiência, em total conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong>. Consulte nossa <a href="privacidade.html">Política de Privacidade</a> e nossos <a href="termos.html">Termos de Uso</a>.
+      </div>
+      <div class="cookie-banner__actions">
+        <button type="button" class="btn btn--primary btn--sm" id="cookieAcceptBtn">
+          <span>✓ Aceitar e Continuar</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Botão Flutuante de Voltar ao Topo -->
+  <button
+    type="button"
+    class="scroll-top-btn"
+    id="scrollTopBtn"
+    aria-label="Voltar ao topo da página"
+    title="Subir ao topo da página"
+  >
+    <span aria-hidden="true">↑</span>
+  </button>
 
   <!-- Botão Flutuante de WhatsApp -->
   <a
@@ -1991,7 +2181,7 @@
   </a>
 
   <!-- Dados e API do Blog + Script Principal -->
-  <script src="blog-data.js?v=18"></script>
-  <script src="script.js?v=18"></script>
+  <script src="blog-data.js?v=30"></script>
+  <script src="script.js?v=30"></script>
 </body>
 </html>
