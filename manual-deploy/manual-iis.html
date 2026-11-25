@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual Passo a Passo — Publicar Site SS Agro no IIS (191.252.197.126)</title>
+  <style>
+    :root {
+      --navy: #0f273c;
+      --blue: #004aad;
+      --cyan: #5de0e6;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --success-bg: #f0fdf4;
+      --success-bd: #86efac;
+      --success-tx: #166534;
+      --warn-bg: #fffbeb;
+      --warn-bd: #fcd34d;
+      --warn-tx: #92400e;
+      --danger-bg: #fef2f2;
+      --danger-bd: #fca5a5;
+      --danger-tx: #991b1b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* Cabeçalho */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, #133963 60%, var(--blue) 100%);
+      color: #fff;
+      padding: 36px 24px 32px;
+      border-bottom: 4px solid var(--cyan);
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .badge-top {
+      display: inline-block;
+      background: rgba(93, 224, 230, 0.18);
+      color: var(--cyan);
+      border: 1px solid rgba(93, 224, 230, 0.45);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #dbeafe;
+      max-width: 700px;
+      font-size: 1rem;
+    }
+
+    .info-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .pill strong { color: var(--cyan); }
+
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .btn-print {
+      background: var(--cyan);
+      color: var(--navy);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-print:hover { transform: translateY(-1px); opacity: 0.92; }
+
+    .progress-box {
+      background: rgba(15, 39, 60, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      min-width: 220px;
+      text-align: center;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--cyan);
+      transition: width 0.25s ease;
+    }
+
+    /* Layout principal */
+    .layout {
+      max-width: 1120px;
+      margin: 28px auto 60px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Sumário lateral */
+    aside.toc {
+      position: sticky;
+      top: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 20px rgba(15, 39, 60, 0.06);
+    }
+
+    aside.toc h2 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--navy);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    aside.toc ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+
+    aside.toc a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13.5px;
+      padding: 7px 9px;
+      border-radius: 7px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    aside.toc a:hover {
+      background: #eff6ff;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    aside.toc .step-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: var(--navy);
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Conteúdo */
+    main { display: flex; flex-direction: column; gap: 24px; }
+
+    section.step-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px 28px;
+      box-shadow: 0 6px 24px rgba(15, 39, 60, 0.06);
+      scroll-margin-top: 20px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .step-title-wrap { display: flex; align-items: center; gap: 12px; }
+
+    .step-number {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 800;
+      font-size: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-header h2 {
+      font-size: 1.32rem;
+      color: var(--navy);
+    }
+
+    .step-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .step-check input { width: 16px; height: 16px; accent-color: #16a34a; cursor: pointer; }
+    .step-card.done { border-color: #86efac; }
+    .step-card.done .step-number { background: #16a34a; }
+
+    p { margin-bottom: 12px; }
+
+    ol.action-list, ul.action-list {
+      margin: 10px 0 16px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #0f273c;
+    }
+
+    /* Alertas */
+    .alert {
+      border-radius: 10px;
+      padding: 13px 16px;
+      margin: 14px 0;
+      font-size: 14px;
+      border-left: 4px solid;
+    }
+
+    .alert-info { background: #eff6ff; border-color: var(--blue); color: #1e3a8a; }
+    .alert-success { background: var(--success-bg); border-color: #22c55e; color: var(--success-tx); }
+    .alert-warn { background: var(--warn-bg); border-color: #f59e0b; color: var(--warn-tx); }
+    .alert-danger { background: var(--danger-bg); border-color: #ef4444; color: var(--danger-tx); }
+
+    /* Blocos de código */
+    .code-wrap {
+      position: relative;
+      margin: 14px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      background: #0f172a;
+    }
+
+    .code-head {
+      background: #1e293b;
+      color: #cbd5e1;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-copy {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-copy:hover { opacity: 0.9; }
+
+    pre {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    /* Imagens ilustrativas */
+    figure.step-figure {
+      margin: 18px 0 6px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    figure.step-figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+      cursor: zoom-in;
+    }
+
+    figure.step-figure figcaption {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Tabela resumo */
+    table.info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    table.info-table th, table.info-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    table.info-table th {
+      background: #f8fafc;
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      cursor: zoom-out;
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox img {
+      max-width: 96%;
+      max-height: 92vh;
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside.toc { position: static; }
+      .header-actions { align-items: flex-start; }
+    }
+
+    @media print {
+      aside.toc, .btn-print, .btn-copy, .progress-box { display: none !important; }
+      .layout { grid-template-columns: 1fr; margin: 0; }
+      section.step-card { break-inside: avoid; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div>
+        <span class="badge-top">GUIA DE PUBLICAÇÃO EM PRODUÇÃO • WINDOWS SERVER + IIS</span>
+        <h1>Manual Passo a Passo: Colocar o Site SS Agro no Ar</h1>
+        <p>Guia simples e visual para migrar o domínio que já está no ar para o novo site na sua VM Windows usando o IIS, sem derrubar o site antigo durante os testes e sem perder seus e-mails.</p>
+        <div class="info-pills">
+          <div class="pill">🖥️ IP da VM: <strong>191.252.197.126</strong></div>
+          <div class="pill">🌐 Domínio: <strong>www.ssagro.com.br</strong></div>
+          <div class="pill">⚙️ Servidor Web: <strong>IIS (Windows Server)</strong></div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+        <div class="progress-box">
+          <div>Progresso do Deploy: <strong id="progressText">0 de 8 etapas</strong></div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc">
+      <h2>Etapas do Manual</h2>
+      <ul>
+        <li><a href="#etapa-1"><span class="step-dot">1</span> Visão Geral e Regra de Ouro</a></li>
+        <li><a href="#etapa-2"><span class="step-dot">2</span> Instalar IIS e Liberar Firewall</a></li>
+        <li><a href="#etapa-3"><span class="step-dot">3</span> Copiar Arquivos e Permissões</a></li>
+        <li><a href="#etapa-4"><span class="step-dot">4</span> Criar o Site no IIS (Bindings)</a></li>
+        <li><a href="#etapa-5"><span class="step-dot">5</span> Ativar Blog Dinâmico (Opcional/Recomendado)</a></li>
+        <li><a href="#etapa-6"><span class="step-dot">6</span> Testar ANTES da Virada (Hosts)</a></li>
+        <li><a href="#etapa-7"><span class="step-dot">7</span> Trocar o DNS para 191.252.197.126</a></li>
+        <li><a href="#etapa-8"><span class="step-dot">8</span> Ativar HTTPS (Cadeado SSL) e Validar</a></li>
+      </ul>
+    </aside>
+
+    <main>
+
+      <!-- ETAPA 1 -->
+      <section class="step-card" id="etapa-1" data-step="1">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">1</span>
+            <h2>Entendendo Como Tudo Funciona (Visão Geral)</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="1"> Concluído</label>
+        </div>
+
+        <p>Como o domínio <strong>www.ssagro.com.br</strong> já possui um site rodando em outro servidor hoje, nós vamos fazer uma <strong>migração segura</strong>: primeiro montamos e testamos tudo na sua VM nova (<code>191.252.197.126</code>), e só trocamos o endereço (DNS) no final.</p>
+
+        <div class="alert alert-info">
+          <strong>Resumo simples da arquitetura do seu site:</strong><br>
+          • <strong>Páginas e mídias (HTML, CSS, JS, fotos e vídeos MP4):</strong> o próprio <strong>IIS</strong> entrega direto e muito rápido.<br>
+          • <strong>Blog Dinâmico e Painel Admin (<code>admin.html</code>):</strong> usam o arquivo <code>server.py</code> para salvar novas notícias em <code>data/blog.json</code>. Na Etapa 5 vamos mostrar como ligar o IIS ao <code>server.py</code> (e se não ligar agora, o site abre normalmente com as 4 notícias padrão).
+        </div>
+
+        <figure class="step-figure">
+          <img src="img/01-arquitetura-visao-geral.png" alt="Visão geral da arquitetura de publicação no IIS" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 1 — Caminho do visitante até o IIS na sua VM (clique na imagem para ampliar).</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 2 -->
+      <section class="step-card" id="etapa-2" data-step="2">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">2</span>
+            <h2>Preparar o IIS e Liberar o Firewall da VM (Portas 80 e 443)</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="2"> Concluído</label>
+        </div>
+
+        <p>Entre na sua VM (via Área de Trabalho Remota / RDP no IP <code>191.252.197.126</code>) e siga os dois passos abaixo:</p>
+
+        <ol class="action-list">
+          <li><strong>Conferir se o IIS está instalado:</strong> Abra o menu Iniciar e procure por <strong>Gerenciador do IIS</strong> (ou <em>IIS Manager</em>). Se ainda não estiver instalado, abra o <strong>Gerenciador do Servidor (Server Manager)</strong> ➜ <em>Adicionar Funções e Recursos</em> ➜ marque <strong>Servidor Web (IIS)</strong> e conclua a instalação.</li>
+          <li><strong>Liberar as portas 80 (HTTP) e 443 (HTTPS) no Firewall do Windows:</strong>
+            <br>Abra o menu Iniciar ➜ digite <strong>Windows Defender Firewall com Segurança Avançada</strong> ➜ clique em <strong>Regras de Entrada</strong> ➜ à direita clique em <strong>Nova Regra...</strong> ➜ escolha <strong>Porta</strong> ➜ <strong>TCP</strong> ➜ Portas específicas: <code>80, 443</code> ➜ <strong>Permitir a conexão</strong> ➜ dê o nome <code>SSAgro Site HTTP HTTPS</code>.</li>
+        </ol>
+
+        <div class="alert alert-warn">
+          <strong>⚠️ Atenção ao Firewall do Provedor (Painel da Nuvem):</strong><br>
+          Se a sua VM estiver na Locaweb, AWS, Azure ou Google Cloud, verifique também no painel web da hospedagem se as portas <strong>TCP 80</strong> e <strong>TCP 443</strong> estão liberadas para a internet (entrada / inbound).
+        </div>
+
+        <figure class="step-figure">
+          <img src="img/02-firewall-portas.png" alt="Liberando portas 80 e 443 no Firewall do Windows" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 2 — Regra de entrada no Firewall do Windows liberando as portas 80 e 443.</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 3 -->
+      <section class="step-card" id="etapa-3" data-step="3">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">3</span>
+            <h2>Copiar os Arquivos do Site para a VM e Dar Permissões</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="3"> Concluído</label>
+        </div>
+
+        <ol class="action-list">
+          <li>Na VM, crie a pasta: <code>C:\inetpub\wwwroot\ssagro</code></li>
+          <li>Copie os arquivos do seu computador (da pasta <code>d:\SSAgro\Fontes\SSAgroSite</code>) para dentro de <code>C:\inetpub\wwwroot\ssagro</code>:
+            <br>• Pastas: <code>assets\</code> e <code>data\</code>
+            <br>• Arquivos: <code>index.html</code>, <code>artigo.html</code>, <code>admin.html</code>, <code>styles.css</code>, <code>script.js</code>, <code>admin.js</code>, <code>blog-data.js</code>, <code>server.py</code>, <code>robots.txt</code>, <code>sitemap.xml</code>.
+            <br>• <strong>Não precisa copiar</strong> a pasta <code>manual-deploy\</code> nem <code>.git\</code>.</li>
+          <li><strong>Configurar Permissões de Pasta:</strong> Clique com o botão direito em <code>C:\inetpub\wwwroot\ssagro</code> ➜ <strong>Propriedades</strong> ➜ aba <strong>Segurança</strong> ➜ confira se o grupo <code>IIS_IUSRS</code> tem permissão de <strong>Ler e executar</strong>.</li>
+          <li>Para permitir que o painel administrativo salve notícias e suba fotos, dê também permissão de <strong>Modificar</strong> para o usuário do sistema nas pastas <code>data\</code> e <code>assets\</code>.</li>
+        </ol>
+
+        <figure class="step-figure">
+          <img src="img/03-pasta-servidor.png" alt="Pasta do site no servidor e permissões IIS_IUSRS" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 3 — Estrutura exata dentro de C:\inetpub\wwwroot\ssagro e permissões necessárias.</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 4 -->
+      <section class="step-card" id="etapa-4" data-step="4">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">4</span>
+            <h2>Criar o Site no IIS e Configurar os Domínios (Bindings)</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="4"> Concluído</label>
+        </div>
+
+        <ol class="action-list">
+          <li>Abra o <strong>Gerenciador do IIS</strong> na VM.</li>
+          <li>Expanda o nome do servidor à esquerda, clique com o botão direito em <strong>Sites</strong> ➜ <strong>Adicionar Site...</strong></li>
+          <li>Preencha exatamente assim:
+            <br>• <strong>Nome do site:</strong> <code>SSAgroSite</code>
+            <br>• <strong>Caminho físico:</strong> <code>C:\inetpub\wwwroot\ssagro</code>
+            <br>• <strong>Tipo:</strong> <code>http</code> | <strong>Porta:</strong> <code>80</code>
+            <br>• <strong>Nome do host:</strong> <code>www.ssagro.com.br</code>
+          </li>
+          <li>Clique em <strong>OK</strong>.</li>
+          <li>Agora clique sobre o site <strong>SSAgroSite</strong> na lista, e no painel da direita clique em <strong>Associações... (Bindings)</strong> ➜ <strong>Adicionar</strong> ➜ Tipo <code>http</code>, Porta <code>80</code>, Nome do host: <code>ssagro.com.br</code> (sem o www, para quem digitar direto também funcionar!).</li>
+        </ol>
+
+        <div class="alert alert-info">
+          <strong>💡 E se existir um "Default Web Site" na porta 80?</strong><br>
+          Como colocamos o <strong>Nome do host</strong> (<code>www.ssagro.com.br</code> e <code>ssagro.com.br</code>), o IIS sabe direcionar corretamente. Caso não use outro site nesse servidor, você também pode clicar no <em>Default Web Site</em> e clicar em <strong>Parar (Stop)</strong> para evitar confusão.
+        </div>
+
+        <figure class="step-figure">
+          <img src="img/04-iis-criar-site.png" alt="Configuração da janela Adicionar Site no IIS" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 4 — Preenchendo o site SSAgroSite no Gerenciador do IIS com www e sem www.</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 5 -->
+      <section class="step-card" id="etapa-5" data-step="5">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">5</span>
+            <h2>Ativar o Blog Dinâmico + Painel Admin no IIS (Recomendado)</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="5"> Concluído</label>
+        </div>
+
+        <p>O site possui o painel <code>/admin.html</code> que envia notícias e imagens para a API em Python (<code>server.py</code>). Se quiser apenas publicar as páginas estáticas agora, você pode usar o <strong>web.config Básico</strong> abaixo. Mas se quiser que o Painel Gerencial salve notícias para todos os usuários no servidor, siga os 3 passos para ativar o <strong>Proxy Reverso</strong>:</p>
+
+        <ol class="action-list">
+          <li><strong>Instalar Python 3 e NSSM na VM:</strong> Instale o Python 3 na VM (marcando <em>Add Python to PATH</em>) e baixe o utilitário gratuito <strong>NSSM</strong> (<em>Non-Sucking Service Manager</em>) para transformar o <code>server.py</code> em um Serviço do Windows que inicia sozinho com o servidor.</li>
+          <li><strong>Instalar extensões do IIS:</strong> Baixe e instale os dois módulos oficiais da Microsoft para IIS: <strong>URL Rewrite 2.1</strong> e <strong>Application Request Routing (ARR 3.0)</strong>. No IIS, clique no nome do servidor ➜ <strong>Application Request Routing Cache</strong> ➜ <strong>Server Proxy Settings</strong> ➜ marque <strong>Enable proxy</strong> e clique em <strong>Aplicar</strong>.</li>
+          <li><strong>Criar o arquivo <code>web.config</code> dentro de <code>C:\inetpub\wwwroot\ssagro\web.config</code>:</strong></li>
+        </ol>
+
+        <div class="code-wrap">
+          <div class="code-head">
+            <span>Opção A — web.config COMPLETO (Usar APÓS instalar URL Rewrite + ARR)</span>
+            <button class="btn-copy" onclick="copyCode('code-webconfig-full', this)">Copiar Código</button>
+          </div>
+          <pre id="code-webconfig-full">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;defaultDocument&gt;
+      &lt;files&gt;
+        &lt;clear /&gt;
+        &lt;add value="index.html" /&gt;
+      &lt;/files&gt;
+    &lt;/defaultDocument&gt;
+    &lt;staticContent&gt;
+      &lt;remove fileExtension=".mp4" /&gt;
+      &lt;mimeMap fileExtension=".mp4" mimeType="video/mp4" /&gt;
+      &lt;remove fileExtension=".json" /&gt;
+      &lt;mimeMap fileExtension=".json" mimeType="application/json" /&gt;
+      &lt;remove fileExtension=".webp" /&gt;
+      &lt;mimeMap fileExtension=".webp" mimeType="image/webp" /&gt;
+    &lt;/staticContent&gt;
+    &lt;rewrite&gt;
+      &lt;rules&gt;
+        &lt;rule name="Proxy_API_Blog" stopProcessing="true"&gt;
+          &lt;match url="^api/(.*)$" /&gt;
+          &lt;action type="Rewrite" url="http://127.0.0.1:8080/api/{R:1}" /&gt;
+        &lt;/rule&gt;
+      &lt;/rules&gt;
+    &lt;/rewrite&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;</pre>
+        </div>
+
+        <div class="code-wrap">
+          <div class="code-head">
+            <span>Opção B — web.config BÁSICO (Se NÃO instalou URL Rewrite/ARR ainda — evita Erro 500.19)</span>
+            <button class="btn-copy" onclick="copyCode('code-webconfig-basic', this)">Copiar Código</button>
+          </div>
+          <pre id="code-webconfig-basic">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;defaultDocument&gt;
+      &lt;files&gt;
+        &lt;clear /&gt;
+        &lt;add value="index.html" /&gt;
+      &lt;/files&gt;
+    &lt;/defaultDocument&gt;
+    &lt;staticContent&gt;
+      &lt;remove fileExtension=".mp4" /&gt;
+      &lt;mimeMap fileExtension=".mp4" mimeType="video/mp4" /&gt;
+      &lt;remove fileExtension=".json" /&gt;
+      &lt;mimeMap fileExtension=".json" mimeType="application/json" /&gt;
+      &lt;remove fileExtension=".webp" /&gt;
+      &lt;mimeMap fileExtension=".webp" mimeType="image/webp" /&gt;
+    &lt;/staticContent&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;</pre>
+        </div>
+
+        <div class="alert alert-danger">
+          <strong>⚠️ Cuidado com o Erro 500.19:</strong> Só use a tag <code>&lt;rewrite&gt;</code> (Opção A) depois de instalar o módulo <strong>URL Rewrite</strong> no IIS. Se colocar sem o módulo instalado, o IIS exibirá erro 500.19 até você instalar o módulo ou usar a Opção B.
+        </div>
+
+        <figure class="step-figure">
+          <img src="img/05-iis-proxy-api.png" alt="Configuração do NSSM e Proxy Reverso no IIS para /api/*" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 5 — Como o NSSM mantém o server.py rodando e o IIS envia /api/* para ele.</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 6 -->
+      <section class="step-card" id="etapa-6" data-step="6">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">6</span>
+            <h2>Testar Tudo ANTES de Mudar o Domínio (Arquivo Hosts)</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="6"> Concluído</label>
+        </div>
+
+        <p>Antes de apontar o DNS oficial para a nova VM, vamos fazer um truque seguro no <strong>seu computador pessoal</strong> para visualizar o site novo como se o domínio já tivesse virado — <strong>enquanto os clientes continuam acessando o site antigo sem interrupção!</strong></p>
+
+        <ol class="action-list">
+          <li>No seu computador, abra o menu Iniciar, digite <strong>Bloco de Notas</strong>, clique com o botão direito e escolha <strong>Executar como administrador</strong>.</li>
+          <li>Clique em <em>Arquivo ➜ Abrir</em> e cole o caminho: <code>C:\Windows\System32\drivers\etc\hosts</code> (mude o filtro de arquivos no canto inferior direito de <code>.txt</code> para <strong>Todos os arquivos (*.*)</strong>).</li>
+          <li>Adicione estas duas linhas no final do arquivo e salve:</li>
+        </ol>
+
+        <div class="code-wrap">
+          <div class="code-head">
+            <span>Linhas para adicionar temporariamente no seu arquivo hosts</span>
+            <button class="btn-copy" onclick="copyCode('code-hosts', this)">Copiar Linhas</button>
+          </div>
+          <pre id="code-hosts">191.252.197.126   www.ssagro.com.br
+191.252.197.126   ssagro.com.br</pre>
+        </div>
+
+        <ol class="action-list" start="4">
+          <li>Abra uma <strong>janela anônima</strong> do navegador e acesse <code>http://www.ssagro.com.br</code>. Confira se o vídeo de abertura roda, se os cards abrem, se as notícias do blog carregam e se o <code>/admin.html</code> funciona.</li>
+          <li><strong>Muito importante:</strong> Assim que terminar o teste, <strong>apague essas 2 linhas do arquivo <code>hosts</code></strong> e salve novamente para não esquecer seu PC travado nesse apontamento manual.</li>
+        </ol>
+
+        <figure class="step-figure">
+          <img src="img/06-teste-hosts-local.png" alt="Editando arquivo hosts para validar antes da virada de DNS" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 6 — Testando o site novo no domínio www.ssagro.com.br sem afetar outros usuários.</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 7 -->
+      <section class="step-card" id="etapa-7" data-step="7">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">7</span>
+            <h2>Virar o DNS de www.ssagro.com.br para o IP 191.252.197.126</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="7"> Concluído</label>
+        </div>
+
+        <p>Agora que você já validou que a VM está 100% pronta, é hora de fazer o domínio oficial apontar para ela.</p>
+
+        <ol class="action-list">
+          <li>Descubra onde está a <strong>Zona de DNS</strong> do domínio <code>ssagro.com.br</code> (normalmente é no <strong>Registro.br</strong>, na <strong>Cloudflare</strong>, ou no painel da hospedagem atual como Locaweb/Hostgator).</li>
+          <li>Localize os registros do tipo <strong>A</strong> (ou CNAME) referentes ao site e altere o IP antigo para o novo IP <code>191.252.197.126</code>:</li>
+        </ol>
+
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Nome / Entrada</th>
+              <th>Valor / Destino</th>
+              <th>TTL Recomendado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A</strong></td>
+              <td><code>@</code> (ou vazio / <code>ssagro.com.br</code>)</td>
+              <td><code>191.252.197.126</code></td>
+              <td><code>300</code> (5 minutos)</td>
+            </tr>
+            <tr>
+              <td><strong>A</strong> (ou CNAME)</td>
+              <td><code>www</code></td>
+              <td><code>191.252.197.126</code> (ou CNAME para <code>ssagro.com.br</code>)</td>
+              <td><code>300</code> (5 minutos)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="alert alert-danger">
+          <strong>📧 REGRA DE OURO DOS E-MAILS:</strong><br>
+          <strong>NÃO APAGUE nem altere</strong> registros do tipo <code>MX</code>, <code>TXT</code> (SPF/DKIM) ou <code>mail</code> / <code>webmail</code>! Eles controlam o recebimento dos seus e-mails (<code>@ssagro.com.br</code>). Mexa <strong>somente</strong> nos registros do site (<code>@</code> e <code>www</code>).
+        </div>
+
+        <p>Para conferir se o mundo já está enxergando a nova VM, abra o Prompt de Comando (CMD) no seu PC e rode:</p>
+
+        <div class="code-wrap">
+          <div class="code-head">
+            <span>Verificar propagação do DNS no CMD</span>
+            <button class="btn-copy" onclick="copyCode('code-nslookup', this)">Copiar Comando</button>
+          </div>
+          <pre id="code-nslookup">nslookup www.ssagro.com.br 8.8.8.8</pre>
+        </div>
+        <p>Quando o comando responder com <code>Address: 191.252.197.126</code>, a internet já encontrou o novo servidor!</p>
+
+        <figure class="step-figure">
+          <img src="img/07-dns-migracao.png" alt="Tabela de atualização dos registros DNS para 191.252.197.126" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 7 — Alteração dos registros A (@ e www) na Zona de DNS mantendo seus e-mails intactos.</span></figcaption>
+        </figure>
+      </section>
+
+      <!-- ETAPA 8 -->
+      <section class="step-card" id="etapa-8" data-step="8">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-number">8</span>
+            <h2>Ativar Cadeado HTTPS (SSL Gratuito) e Checklist Final</h2>
+          </div>
+          <label class="step-check"><input type="checkbox" class="chk-step" data-id="8"> Concluído</label>
+        </div>
+
+        <p>Hoje todos os navegadores exigem <strong>HTTPS</strong> (e o seu <code>sitemap.xml</code> já usa <code>https://www.ssagro.com.br</code>). No Windows + IIS, a maneira mais fácil e gratuita de instalar e renovar o certificado automaticamente é usando o <strong>win-acme</strong> (Let's Encrypt).</p>
+
+        <div class="alert alert-warn">
+          <strong>⏳ Pré-requisito obrigatório:</strong> Só faça esta etapa <strong>DEPOIS</strong> que o <code>nslookup</code> da Etapa 7 já estiver retornando <code>191.252.197.126</code>, porque o Let's Encrypt precisa acessar o site pela internet para emitir o certificado.
+        </div>
+
+        <ol class="action-list">
+          <li>Na VM, baixe o <strong>win-acme</strong> (<code>win-acme.com</code>) e extraia para <code>C:\win-acme</code>.</li>
+          <li>Abra o CMD ou PowerShell como Administrador dentro de <code>C:\win-acme</code> e execute <code>wacs.exe</code>.</li>
+          <li>No menu interativo:
+            <br>• Digite <code>N</code> (Criar certificado com configurações padrão)
+            <br>• Escolha o número correspondente ao site <strong>SSAgroSite</strong>
+            <br>• Escolha <code>A</code> para incluir todos os bindings (<code>www.ssagro.com.br</code> e <code>ssagro.com.br</code>)
+            <br>• Confirme com <code>y</code> e informe um e-mail para alertas.</li>
+          <li>Pronto! O próprio <code>wacs.exe</code> cria a associação <strong>HTTPS (porta 443)</strong> no IIS e agenda a renovação automática.</li>
+        </ol>
+
+        <div class="alert alert-success">
+          <strong>✅ Checklist Final de Validação em Produção:</strong><br>
+          1. Acesse <code>https://www.ssagro.com.br</code> e confirme o cadeado verde/seguro.<br>
+          2. Teste <code>http://ssagro.com.br</code> e <code>https://ssagro.com.br</code>.<br>
+          3. Valide o carregamento do vídeo do banner, imagens e botões do WhatsApp.<br>
+          4. Abra uma notícia em <code>https://www.ssagro.com.br/artigo.html</code> e teste o painel <code>https://www.ssagro.com.br/admin.html</code>.<br>
+          5. <em>Dica bônus de segurança:</em> Nunca divulgue o link <code>/admin.html</code> publicamente e, se desejar, configure autenticação por senha no IIS ou crie um caminho restrito para ele.
+        </div>
+
+        <figure class="step-figure">
+          <img src="img/08-ssl-https-winacme.png" alt="Execução do win-acme wacs.exe para gerar certificado SSL no IIS" onclick="openLightbox(this.src)">
+          <figcaption><span>Figura 8 — Passo a passo no terminal do win-acme (wacs.exe) ativando o HTTPS automático no IIS.</span></figcaption>
+        </figure>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Lightbox para ampliar as imagens -->
+  <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+    <img id="lightboxImg" src="" alt="Imagem ampliada">
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ssagro_deploy_manual_checks_v1';
+    const checkboxes = document.querySelectorAll('.chk-step');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+
+    function loadProgress() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (_) {}
+      checkboxes.forEach((chk) => {
+        const id = chk.dataset.id;
+        chk.checked = Boolean(saved[id]);
+        updateCardStyle(chk);
+      });
+      updateProgressBar();
+    }
+
+    function saveProgress() {
+      const state = {};
+      checkboxes.forEach((chk) => { state[chk.dataset.id] = chk.checked; });
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+      updateProgressBar();
+    }
+
+    function updateCardStyle(chk) {
+      const card = chk.closest('.step-card');
+      if (card) card.classList.toggle('done', chk.checked);
+    }
+
+    function updateProgressBar() {
+      const total = checkboxes.length;
+      const done = Array.from(checkboxes).filter((c) => c.checked).length;
+      progressText.textContent = `${done} de ${total} etapas`;
+      progressFill.style.width = `${Math.round((done / total) * 100)}%`;
+    }
+
+    checkboxes.forEach((chk) => {
+      chk.addEventListener('change', () => {
+        updateCardStyle(chk);
+        saveProgress();
+      });
+    });
+
+    function copyCode(elementId, btn) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.textContent;
+        btn.textContent = 'Copiado! ✓';
+        setTimeout(() => { btn.textContent = old; }, 1800);
+      });
+    }
+
+    function openLightbox(src) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').classList.add('open');
+    }
+
+    loadProgress();
+  </script>
+</body>
+</html>
